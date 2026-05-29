@@ -9,3 +9,4 @@ android/app/build
 android/build
 android/.gradle
 .kiro
+*.tsbuildinfo
