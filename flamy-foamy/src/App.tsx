@@ -2,17 +2,27 @@ import { useEffect, useRef } from 'react';
 
 export default function App() {
   const mountRef = useRef<HTMLDivElement>(null);
+  // StrictMode + Vite HMR can mount effects twice. Tahan supaya cuma 1 Phaser
+  // game instance yang aktif (kalau gak, canvas dobel & layout hancur).
+  const gameRef = useRef<import('phaser').Game | null>(null);
+  const startedRef = useRef(false);
 
   useEffect(() => {
-    let game: import('phaser').Game | null = null;
+    if (startedRef.current) return;
+    startedRef.current = true;
+
+    let cancelled = false;
     (async () => {
       const { createGame } = await import('./game');
-      if (mountRef.current) {
-        game = createGame(mountRef.current);
-      }
+      if (cancelled || !mountRef.current) return;
+      gameRef.current = createGame(mountRef.current);
     })();
+
     return () => {
-      game?.destroy(true);
+      cancelled = true;
+      gameRef.current?.destroy(true);
+      gameRef.current = null;
+      startedRef.current = false;
     };
   }, []);
 
