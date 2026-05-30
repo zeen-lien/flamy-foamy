@@ -16,10 +16,30 @@ export const SPRITE_SIZE = {
 
 export type PlayerMode = 'blop' | 'fire' | 'water';
 
-// Konstanta gameplay (sesuai laporan)
+// ============================================================
+//  FISIKA LOMPAT — dihitung biar desain platform konsisten.
+//
+//  maxJumpHeight = jumpV² / (2·gravity)
+//  airTime       = 2·jumpV / gravity
+//  maxJumpDist   = playerSpeed · airTime
+//
+//  gravity 1100, jumpV 660  → tinggi  = 198px
+//  airTime = 1.2s, speed 340 → jarak  = 408px
+//
+//  ATURAN DESAIN LEVEL (pakai JUMP_LIMITS):
+//   - beda tinggi antar platform   ≤ 140px (margin dari 198)
+//   - gap horizontal antar platform ≤ 280px (margin dari 408)
+// ============================================================
+export const WORLD_GRAVITY = 1100;
+
+export const JUMP_LIMITS = {
+  maxRise: 140,
+  maxGap: 280,
+} as const;
+
 export const GAMEPLAY = {
-  playerSpeed: 260,
-  jumpVelocity: -560,
+  playerSpeed: 340,
+  jumpVelocity: -660,
   attackDuration: 600, // ms
   bossHpMax: 20,
   bossDamageToPlayer: 5,

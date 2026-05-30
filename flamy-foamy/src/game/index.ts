@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT } from './config';
+import { GAME_WIDTH, GAME_HEIGHT, WORLD_GRAVITY } from './config';
 import { BootScene } from './scenes/BootScene';
 import { PreloadScene } from './scenes/PreloadScene';
 import { HomeScene } from './scenes/HomeScene';
@@ -10,6 +10,7 @@ import { CaraBermainScene } from './scenes/CaraBermainScene';
 import { PlayerTestScene } from './scenes/PlayerTestScene';
 import { HUDScene } from './scenes/HUDScene';
 import { Level1Scene } from './scenes/Level1Scene';
+import { HasilScene } from './scenes/HasilScene';
 
 export function createGame(parent: HTMLElement): Phaser.Game {
   return new Phaser.Game({
@@ -21,6 +22,8 @@ export function createGame(parent: HTMLElement): Phaser.Game {
     pixelArt: false,
     antialias: true,
     scale: {
+      // RESIZE = canvas selalu full window (no letterbox/gap).
+      // In-game framing dibuat konsisten via camera.setZoom (lihat Level1Scene).
       mode: Phaser.Scale.RESIZE,
       width: window.innerWidth,
       height: window.innerHeight,
@@ -29,7 +32,7 @@ export function createGame(parent: HTMLElement): Phaser.Game {
     physics: {
       default: 'arcade',
       arcade: {
-        gravity: { x: 0, y: 1100 },
+        gravity: { x: 0, y: WORLD_GRAVITY },
         debug: false,
       },
     },
@@ -44,6 +47,7 @@ export function createGame(parent: HTMLElement): Phaser.Game {
       PlayerTestScene,
       HUDScene,
       Level1Scene,
+      HasilScene,
     ],
   });
 }

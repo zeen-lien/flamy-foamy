@@ -108,12 +108,12 @@ export const ANIM_ASSETS: AnimEntry[] = [
   { key: ANIM.PLAYER_WATER_ATTACK, folder: 'assets/player/water_attack', frames: 6, frameRate: 14, repeat: 0 },
 
   // ===== Boss =====
-  { key: ANIM.BOSS_BATU_RUN, folder: 'assets/bos/bos_batu/ebatu_run', frames: 6, frameRate: 10, repeat: -1 },
-  { key: ANIM.BOSS_BATU_ATTACK, folder: 'assets/bos/bos_batu/ebatu_attack', frames: 6, frameRate: 12, repeat: 0 },
-  { key: ANIM.BOSS_API_RUN, folder: 'assets/bos/bos_api/eapi_run', frames: 7, frameRate: 12, repeat: -1 },
-  { key: ANIM.BOSS_API_ATTACK, folder: 'assets/bos/bos_api/eapi_attack', frames: 6, frameRate: 14, repeat: 0 },
-  { key: ANIM.BOSS_ES_RUN, folder: 'assets/bos/bos_es/eair_run', frames: 6, frameRate: 12, repeat: -1 },
-  { key: ANIM.BOSS_ES_ATTACK, folder: 'assets/bos/bos_es/eair_attack', frames: 6, frameRate: 14, repeat: 0 },
+  { key: ANIM.BOSS_BATU_RUN, folder: 'assets/bos/bos_batu/ebatu_run', frames: 6, frameRate: 7, repeat: -1 },
+  { key: ANIM.BOSS_BATU_ATTACK, folder: 'assets/bos/bos_batu/ebatu_attack', frames: 6, frameRate: 8, repeat: 0 },
+  { key: ANIM.BOSS_API_RUN, folder: 'assets/bos/bos_api/eapi_run', frames: 7, frameRate: 8, repeat: -1 },
+  { key: ANIM.BOSS_API_ATTACK, folder: 'assets/bos/bos_api/eapi_attack', frames: 6, frameRate: 9, repeat: 0 },
+  { key: ANIM.BOSS_ES_RUN, folder: 'assets/bos/bos_es/eair_run', frames: 6, frameRate: 7, repeat: -1 },
+  { key: ANIM.BOSS_ES_ATTACK, folder: 'assets/bos/bos_es/eair_attack', frames: 6, frameRate: 9, repeat: 0 },
 
   // ===== Eggs =====
   { key: ANIM.EGG_BATU_IDLE, folder: 'assets/items/telur/telurbatu', frames: 1, frameRate: 1, repeat: -1 },

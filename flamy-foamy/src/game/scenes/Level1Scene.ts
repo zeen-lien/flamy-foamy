@@ -5,10 +5,16 @@ import { PlayerController } from '../entities/PlayerController';
 import { TerrainBlock } from '../entities/Terrain';
 import { Collectible } from '../entities/Collectible';
 import { Checkpoint } from '../entities/Checkpoint';
+import { Spike } from '../entities/Spike';
+import { Trap } from '../entities/Trap';
+import { Boss } from '../entities/Boss';
+import { Egg } from '../entities/Egg';
 import { EnvText } from '../entities/EnvText';
 import { ParallaxBg } from '../entities/ParallaxBg';
 import { AudioManager } from '../audio/AudioManager';
+import { FONT } from '../ui/fonts';
 import { LEVEL_TARGETS } from '../state/SaveManager';
+import { GAMEPLAY } from '../config';
 import type { PlayerMode } from '../config';
 import {
   LEVEL1_CONFIG,
@@ -17,10 +23,20 @@ import {
   LEVEL1_STONES,
   LEVEL1_XP,
   LEVEL1_CHECKPOINTS,
+  LEVEL1_SPIKES,
+  LEVEL1_TRAPS,
   LEVEL1_ENVTEXT,
 } from '../levels/level1';
 
 const LEVEL_ACCENT = 0xb8a578; // batu/gold untuk level 1
+
+// Tinggi world yang SELALU terlihat (konsisten lintas device).
+// camera.zoom = viewportHeight / DESIGN_VIEW_HEIGHT → framing vertikal identik
+// di HP, tablet, desktop. Canvas tetap full (RESIZE), no letterbox.
+// 420 = fokus ke area main (player + ground + ruang lompat), gak kebanyakan langit.
+const DESIGN_VIEW_HEIGHT = 420;
+// Ground muncul di posisi ini (fraksi dari atas area tampil). 0.72 = agak bawah.
+const GROUND_SCREEN_FRAC = 0.72;
 
 export class Level1Scene extends Phaser.Scene {
   private parallax!: ParallaxBg;
@@ -33,12 +49,23 @@ export class Level1Scene extends Phaser.Scene {
   private xps!: Phaser.GameObjects.Group;
   private checkpoints: Checkpoint[] = [];
   private envTexts: EnvText[] = [];
+  private spikes: Spike[] = [];
+  private traps: Trap[] = [];
+  private boss?: Boss;
+  private egg?: Egg;
+  private bossTriggered = false;
+  private eggSpawned = false;
+  private levelComplete = false;
+  private finishPortal?: Phaser.GameObjects.Container;
+  private playerHitRegistered = false;
+  private eggHitRegistered = false;
 
   // State
   private skor_koin = 0;
   private batu_terkumpul = 0;
   private respawnX = LEVEL1_CONFIG.spawnX;
   private respawnY = LEVEL1_CONFIG.spawnY;
+  private invulnerableUntil = 0;
 
   constructor() {
     super({ key: SCENE.LEVEL1 });
@@ -49,19 +76,28 @@ export class Level1Scene extends Phaser.Scene {
     this.batu_terkumpul = 0;
     this.checkpoints = [];
     this.envTexts = [];
+    this.spikes = [];
+    this.traps = [];
+    this.boss = undefined;
+    this.egg = undefined;
+    this.bossTriggered = false;
+    this.eggSpawned = false;
+    this.levelComplete = false;
+    this.finishPortal = undefined;
     this.respawnX = LEVEL1_CONFIG.spawnX;
     this.respawnY = LEVEL1_CONFIG.spawnY;
+    this.invulnerableUntil = 0;
 
     this.cameras.main.fadeIn(450, 0, 0, 0);
 
     const W = LEVEL1_CONFIG.width;
     const H = LEVEL1_CONFIG.worldHeight;
-    const viewW = this.scale.width;
-    const viewH = this.scale.height;
 
     // ---- Parallax bg ----
     this.parallax = new ParallaxBg(this);
-    this.parallax.addLayer({ textureKey: TEX.BG_LEVEL1, scrollFactor: 0.25, alpha: 1 }, viewW, viewH);
+    this.parallax.addLayer({ textureKey: TEX.BG_LEVEL1, scrollFactor: 0.3, alpha: 1 });
+
+    // (Tanpa underground fill — bg parallax sudah menutupi area bawah lantai)
 
     // World bounds (physics) — pakai world height fixed.
     // Camera bounds di-set terpisah via updateCameraVerticalLock().
@@ -78,9 +114,8 @@ export class Level1Scene extends Phaser.Scene {
 
     this.controller = new PlayerController(this, this.player);
 
-    // Camera follow horizontal saja; vertical di-lock supaya ground selalu
-    // nempel di bawah viewport (gak ngambang di tengah saat viewport tinggi).
-    this.cameras.main.startFollow(this.player, true, 0.12, 0);
+    // Camera: manual control (gak pakai startFollow) supaya vertikal benar-benar
+    // terkunci. Horizontal di-lerp ke player di lockCameraX().
     this.updateCameraVerticalLock();
 
     // ---- Collectibles ----
@@ -88,6 +123,10 @@ export class Level1Scene extends Phaser.Scene {
 
     // ---- Checkpoints ----
     this.buildCheckpoints();
+
+    // ---- Spikes & Traps ----
+    this.buildSpikes();
+    this.buildTraps();
 
     // ---- Env text ----
     this.buildEnvTexts();
@@ -107,9 +146,45 @@ export class Level1Scene extends Phaser.Scene {
     });
   }
 
-  update() {
+  update(_t: number, delta: number) {
     this.controller.update();
-    this.parallax.update(this.cameras.main.scrollX, this.cameras.main.scrollY);
+    this.lockCameraX();
+    this.lockCameraY();
+    this.parallax.update(this.cameras.main);
+
+    // Animate traps
+    for (const trap of this.traps) trap.tick(delta);
+
+    // Boss trigger saat player masuk arena
+    if (!this.bossTriggered && this.player.x >= LEVEL1_CONFIG.bossTriggerX) {
+      this.spawnBoss();
+    }
+    // Boss AI + player attack check
+    if (this.boss && this.boss.alive) {
+      this.boss.updateAI(this.player.x, this.player.y);
+      this.events.emit('hud:bossHp', this.boss.hp / this.boss.hpMax);
+      // Player attack mengenai boss
+      if (this.player.isAttacking) {
+        const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.boss.x, this.boss.y);
+        if (dist < 90 && !this.playerHitRegistered) {
+          this.playerHitRegistered = true;
+          this.boss.takeHit(GAMEPLAY.playerDamageToBoss);
+        }
+      } else {
+        this.playerHitRegistered = false;
+      }
+    }
+    // Player attack mengenai telur
+    if (this.egg && !this.egg.cracked && this.player.isAttacking) {
+      const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.egg.x, this.egg.y);
+      if (dist < 90 && !this.eggHitRegistered) {
+        this.eggHitRegistered = true;
+        this.egg.hit();
+        AudioManager.get(this).playSfx(this, AUDIO.SFX_COIN, 0.8);
+      }
+    } else if (!this.player.isAttacking) {
+      this.eggHitRegistered = false;
+    }
 
     // Sync mode ke HUD
     this.events.emit('hud:mode', this.player.mode);
@@ -218,6 +293,42 @@ export class Level1Scene extends Phaser.Scene {
     }
   }
 
+  private buildSpikes(): void {
+    for (const s of LEVEL1_SPIKES) {
+      const spike = new Spike({ scene: this, x: s.x, y: s.y, width: s.w });
+      spike.setDepth(4);
+      this.spikes.push(spike);
+      this.physics.add.overlap(this.player, spike, () => this.onHazardHit());
+    }
+  }
+
+  private buildTraps(): void {
+    for (const t of LEVEL1_TRAPS) {
+      const trap = new Trap({
+        scene: this,
+        x: t.x,
+        y: t.y,
+        variant: t.variant,
+        width: 72,
+        onDuration: t.onDur,
+        offDuration: t.offDur,
+        startDelay: t.delay,
+      });
+      trap.setDepth(4);
+      this.traps.push(trap);
+      this.physics.add.overlap(this.player, trap, () => {
+        if (trap.isLethal()) this.onHazardHit();
+      });
+    }
+  }
+
+  private onHazardHit(): void {
+    if (this.player.isDead) return;
+    if (this.time.now < this.invulnerableUntil) return;
+    // Instant kill hazard → respawn
+    this.respawnPlayer();
+  }
+
   // ============================================================ COLLECT HANDLERS
 
   private collectCoin(coin: Collectible): void {
@@ -263,9 +374,60 @@ export class Level1Scene extends Phaser.Scene {
 
   private respawnPlayer(): void {
     this.cameras.main.flash(200, 80, 20, 20);
+    this.cameras.main.shake(220, 0.012);
     AudioManager.get(this).playSfx(this, AUDIO.SFX_DEATH, 0.7);
+
+    // Death particle burst di posisi player
+    this.spawnDeathBurst(this.player.x, this.player.y);
+
     this.player.respawnAt(this.respawnX, this.respawnY);
     this.events.emit('hud:hp', { hp: this.player.hp, max: 200 });
+
+    // Invulnerable 1.2 detik + blink
+    this.invulnerableUntil = this.time.now + 1200;
+    this.blinkPlayer(1200);
+  }
+
+  /** Restart full level (dipakai saat HP habis di boss fight). */
+  private restartLevel(): void {
+    if (this.levelComplete) return;
+    this.cameras.main.shake(300, 0.02);
+    this.cameras.main.fadeOut(500, 0, 0, 0);
+    AudioManager.get(this).playSfx(this, AUDIO.SFX_DEATH, 0.8);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.stop(SCENE.HUD);
+      this.scene.restart();
+    });
+  }
+
+  private spawnDeathBurst(x: number, y: number): void {
+    for (let i = 0; i < 10; i++) {
+      const p = this.add.circle(x, y - 20, Phaser.Math.Between(2, 4), 0xff5252, 1).setDepth(9);
+      const ang = (i / 10) * Math.PI * 2;
+      const dist = Phaser.Math.Between(30, 70);
+      this.tweens.add({
+        targets: p,
+        x: x + Math.cos(ang) * dist,
+        y: y - 20 + Math.sin(ang) * dist,
+        alpha: 0,
+        scale: 0.3,
+        duration: 450,
+        ease: 'Cubic.easeOut',
+        onComplete: () => p.destroy(),
+      });
+    }
+  }
+
+  private blinkPlayer(duration: number): void {
+    const blink = this.tweens.add({
+      targets: this.player,
+      alpha: { from: 1, to: 0.3 },
+      duration: 120,
+      yoyo: true,
+      repeat: Math.floor(duration / 240),
+      onComplete: () => this.player.setAlpha(1),
+    });
+    void blink;
   }
 
   // ============================================================ HUD
@@ -307,6 +469,137 @@ export class Level1Scene extends Phaser.Scene {
     this.events.on('hud:virtualAttack', () => this.controller.triggerVirtualAttack());
   }
 
+  // ============================================================ BOSS / EGG / FINISH
+
+  private spawnBoss(): void {
+    this.bossTriggered = true;
+    const bx = LEVEL1_CONFIG.bossTriggerX + 350;
+    this.boss = new Boss({
+      scene: this,
+      x: bx,
+      y: LEVEL1_CONFIG.groundY - 200, // spawn di atas tanah → jatuh & mendarat
+      type: 'batu',
+      hpMax: 20,
+      chaseRange: 700,
+      stopRange: 110,
+      attackCooldown: 1800,
+      damage: 8,
+      chaseSpeed: 130,
+      renderHeight: 200,
+    });
+    this.boss.setDepth(6);
+    this.physics.add.collider(this.boss, this.platforms);
+
+    this.boss.onHitPlayer((dmg) => {
+      if (this.time.now < this.invulnerableUntil) return;
+      this.player.takeDamage(dmg);
+      this.events.emit('hud:hp', { hp: this.player.hp, max: 200 });
+      this.invulnerableUntil = this.time.now + 800;
+      // HP habis saat boss fight → restart full level (gak ada checkpoint
+      // di arena karena player ke-lock, biar fight beneran menantang).
+      if (this.player.hp <= 0) this.restartLevel();
+    });
+    this.boss.onDeath(() => this.onBossDefeated());
+
+    // HUD boss bar
+    this.events.emit('hud:bossShow', { name: 'Penjaga Batu' });
+    AudioManager.get(this).playSfx(this, AUDIO.SFX_VICTORY, 0.4);
+
+    // Tutup arena dengan dinding invisible kiri (biar gak kabur)
+    this.addCollider(LEVEL1_CONFIG.bossTriggerX - 40, LEVEL1_CONFIG.groundY - 200, 40, 500);
+  }
+
+  private onBossDefeated(): void {
+    this.events.emit('hud:bossHide');
+    AudioManager.get(this).playSfx(this, AUDIO.SFX_VICTORY, 0.9);
+    this.cameras.main.flash(300, 184, 165, 120);
+    if (this.eggSpawned) return;
+    this.eggSpawned = true;
+    // Spawn telur di posisi boss mati
+    const ex = this.boss ? this.boss.x : LEVEL1_CONFIG.bossTriggerX + 350;
+    this.egg = new Egg({
+      scene: this,
+      x: ex,
+      y: LEVEL1_CONFIG.groundY,
+      type: 'batu',
+      hpMax: 5,
+      renderHeight: 90,
+      accentColor: LEVEL_ACCENT,
+      onCracked: () => this.onEggCracked(),
+    });
+    this.egg.setDepth(6);
+
+    this.showEnvBanner('Pecahkan Telur! Serang dengan tombol Attack.');
+  }
+
+  private onEggCracked(): void {
+    this.spawnFinishPortal();
+    this.showEnvBanner('Portal terbuka! Menuju gerbang cahaya…');
+  }
+
+  private spawnFinishPortal(): void {
+    const px = (this.egg ? this.egg.x : LEVEL1_CONFIG.exitX) + 200;
+    const py = LEVEL1_CONFIG.groundY - 60;
+    const portal = this.add.container(px, py).setDepth(6);
+    const g = this.add.graphics();
+    // Portal ring glow
+    g.fillStyle(0xffd84d, 0.25); g.fillCircle(0, 0, 70);
+    g.fillStyle(0x5eead4, 0.35); g.fillCircle(0, 0, 50);
+    g.fillStyle(0xffffff, 0.5); g.fillCircle(0, 0, 28);
+    portal.add(g);
+    this.tweens.add({
+      targets: g, scaleX: { from: 0.9, to: 1.1 }, scaleY: { from: 0.9, to: 1.1 },
+      alpha: { from: 0.7, to: 1 }, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+    });
+    this.tweens.add({ targets: portal, y: py - 8, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.finishPortal = portal;
+
+    // Overlap zone untuk finish
+    const zone = this.add.rectangle(px, py, 80, 140, 0x00ff00, 0);
+    this.physics.add.existing(zone, true);
+    (zone.body as Phaser.Physics.Arcade.StaticBody).updateFromGameObject();
+    this.physics.add.overlap(this.player, zone, () => this.completeLevel());
+  }
+
+  private completeLevel(): void {
+    if (this.levelComplete) return;
+    this.levelComplete = true;
+    this.cameras.main.fadeOut(500, 0, 0, 0);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.stop(SCENE.HUD);
+      this.scene.start(SCENE.HASIL, {
+        level: 1,
+        coin: this.skor_koin,
+        coinTarget: LEVEL_TARGETS[1].coin,
+        stone: this.batu_terkumpul,
+        stoneTarget: LEVEL_TARGETS[1].stones,
+      });
+    });
+  }
+
+  private showEnvBanner(text: string): void {
+    const t = this.add
+      .text(this.scale.width / 2, this.scale.height * 0.3, text, {
+        fontFamily: FONT.BODY,
+        fontSize: '18px',
+        color: '#ffd84d',
+        fontStyle: 'italic',
+        align: 'center',
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(40)
+      .setAlpha(0);
+    this.tweens.add({
+      targets: t,
+      alpha: 1,
+      duration: 400,
+      yoyo: true,
+      hold: 2000,
+      onComplete: () => t.destroy(),
+    });
+  }
+
   private exitToHome(): void {
     this.cameras.main.fadeOut(300, 0, 0, 0);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
@@ -316,23 +609,47 @@ export class Level1Scene extends Phaser.Scene {
   }
 
   private onResize(): void {
-    this.parallax.resize(this.scale.width, this.scale.height);
     this.updateCameraVerticalLock();
   }
 
   /**
-   * Lock kamera secara vertikal supaya ground (groundY) selalu berada dekat
-   * bawah viewport, gak ngambang di tengah saat viewport lebih tinggi dari
-   * world design height.
+   * Camera zoom = viewH / DESIGN_VIEW_HEIGHT → tinggi world yang tampil SELALU
+   * = DESIGN_VIEW_HEIGHT di semua device. Canvas full (RESIZE), no gap.
    */
   private updateCameraVerticalLock(): void {
+    const cam = this.cameras.main;
     const viewH = this.scale.height;
-    const groundY = LEVEL1_CONFIG.groundY;
-    // Kita mau groundY tampil ~80px dari bawah layar.
-    // scrollY = groundY + margin - viewH  (supaya ground di dekat bawah)
-    const targetScrollY = groundY + 100 - viewH;
-    // Camera bounds vertical di-set supaya scrollY ini valid & terkunci.
-    const W = LEVEL1_CONFIG.width;
-    this.cameras.main.setBounds(0, targetScrollY, W, viewH);
+    const zoom = viewH / DESIGN_VIEW_HEIGHT;
+    cam.setZoom(zoom);
+    cam.setBounds(0, -1000, LEVEL1_CONFIG.width, DESIGN_VIEW_HEIGHT + 2000);
+    this.lockCameraY();
+  }
+
+  /**
+   * scrollY diatur supaya ground (y=620) selalu ~90px dari bawah area tampil.
+   * Kalau player lompat tinggi, kamera pan ke atas.
+   */
+  private lockCameraY(): void {
+    const cam = this.cameras.main;
+    // Ground muncul di GROUND_SCREEN_FRAC dari atas area tampil.
+    // scrollY (top world) = groundY - DESIGN_VIEW_HEIGHT * GROUND_SCREEN_FRAC
+    const groundedScrollY = LEVEL1_CONFIG.groundY - DESIGN_VIEW_HEIGHT * GROUND_SCREEN_FRAC;
+    const threshold = groundedScrollY + DESIGN_VIEW_HEIGHT * 0.32;
+    let targetScrollY = groundedScrollY;
+    if (this.player.y < threshold) {
+      targetScrollY = this.player.y - DESIGN_VIEW_HEIGHT * 0.32;
+    }
+    targetScrollY = Math.min(targetScrollY, groundedScrollY);
+    cam.scrollY = Phaser.Math.Linear(cam.scrollY, targetScrollY, 0.15);
+  }
+
+  /** Lerp scrollX ke posisi player (center horizontal), pakai lebar world tampil. */
+  private lockCameraX(): void {
+    const cam = this.cameras.main;
+    // Lebar world yang tampil = viewW / zoom = viewW / (viewH/DESIGN) = DESIGN * (viewW/viewH)
+    const visibleW = DESIGN_VIEW_HEIGHT * (this.scale.width / this.scale.height);
+    let targetX = this.player.x - visibleW / 2;
+    targetX = Phaser.Math.Clamp(targetX, 0, Math.max(0, LEVEL1_CONFIG.width - visibleW));
+    cam.scrollX = Phaser.Math.Linear(cam.scrollX, targetX, 0.12);
   }
 }

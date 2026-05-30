@@ -116,4 +116,5 @@ export const SCENE = {
   PLAYER_TEST: 'PlayerTestScene',
   HUD: 'HUDScene',
   LEVEL1: 'Level1Scene',
+  HASIL: 'HasilScene',
 } as const;

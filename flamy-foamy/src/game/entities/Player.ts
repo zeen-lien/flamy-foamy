@@ -59,6 +59,12 @@ export class Player extends Phaser.GameObjects.Container {
   private currentAction: PlayerAction = 'idle';
   private attackTimer?: Phaser.Time.TimerEvent;
 
+  // Jump feel: coyote time + jump buffer
+  private lastGroundedTime = 0;
+  private jumpBufferedTime = -1000;
+  private readonly COYOTE_MS = 110;       // masih bisa lompat 110ms setelah lepas tepi
+  private readonly JUMP_BUFFER_MS = 130;  // lompat ke-buffer 130ms sebelum mendarat
+
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
     scene.add.existing(this);
@@ -126,8 +132,26 @@ export class Player extends Phaser.GameObjects.Container {
 
   jump(): void {
     if (this.isDead) return;
-    if (this.body.blocked.down || this.body.touching.down) {
+    // Catat permintaan lompat (buffer). Eksekusi aktual di tryConsumeJump()
+    // yang dipanggil tiap frame — supaya coyote time & buffer bekerja.
+    this.jumpBufferedTime = this.scene.time.now;
+  }
+
+  /** Dipanggil tiap frame (updateAnimation) untuk proses jump dengan
+   *  coyote time + jump buffer supaya lompatan terasa responsif & "nyampe". */
+  private tryConsumeJump(): void {
+    if (this.isDead) return;
+    const now = this.scene.time.now;
+    const grounded = this.body.blocked.down || this.body.touching.down;
+    if (grounded) this.lastGroundedTime = now;
+
+    const wantJump = now - this.jumpBufferedTime <= this.JUMP_BUFFER_MS;
+    const canJump = now - this.lastGroundedTime <= this.COYOTE_MS;
+
+    if (wantJump && canJump) {
       this.body.setVelocityY(GAMEPLAY.jumpVelocity);
+      this.jumpBufferedTime = -1000; // consume
+      this.lastGroundedTime = -1000; // cegah double jump
     }
   }
 
@@ -192,6 +216,7 @@ export class Player extends Phaser.GameObjects.Container {
   // --------------------------------------------------------- ANIMATION
 
   updateAnimation(): void {
+    this.tryConsumeJump();
     if (this.isDead || this.isAttacking) return;
     const grounded = this.body.blocked.down || this.body.touching.down;
     const movingX = Math.abs(this.body.velocity.x) > 30;

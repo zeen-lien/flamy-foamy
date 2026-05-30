@@ -8,6 +8,7 @@ import { StoneBadge } from '../hud/StoneBadge';
 import { ModeSwitcher } from '../hud/ModeSwitcher';
 import { PauseButton } from '../hud/PauseButton';
 import { TouchControls } from '../hud/TouchControls';
+import { BossHpBar } from '../hud/BossHpBar';
 import { showToast } from '../ui/Toast';
 
 /**
@@ -46,6 +47,7 @@ export class HUDScene extends Phaser.Scene {
   private mode!: ModeSwitcher;
   private pause!: PauseButton;
   private touch?: TouchControls;
+  private bossBar?: BossHpBar;
 
   private hudData!: HUDInitData;
   private parentScene!: Phaser.Scene;
@@ -120,6 +122,21 @@ export class HUDScene extends Phaser.Scene {
       this.touch?.setMode(m);
     });
     parent.events.on('hud:unlocks', (u: { fire: boolean; water: boolean }) => this.mode.setUnlocked(u));
+
+    // Boss HP bar
+    parent.events.on('hud:bossShow', (p: { name: string }) => {
+      if (this.bossBar) this.bossBar.destroy();
+      const w = this.scale.gameSize.width;
+      this.bossBar = new BossHpBar(this, w / 2, 70, p.name, Math.min(480, w - 80));
+      this.bossBar.setDepth(50);
+    });
+    parent.events.on('hud:bossHp', (ratio: number) => {
+      this.bossBar?.setRatio(ratio);
+    });
+    parent.events.on('hud:bossHide', () => {
+      this.bossBar?.destroy();
+      this.bossBar = undefined;
+    });
 
     // Cleanup saat parent scene shutdown
     parent.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
