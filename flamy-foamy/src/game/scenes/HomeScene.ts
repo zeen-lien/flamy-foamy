@@ -8,10 +8,13 @@ import {
   drawLevelIcon,
   drawSettingIcon,
   drawAboutIcon,
+  drawHelpIcon,
   drawMusicOnIcon,
   drawMusicOffIcon,
   COLOR,
 } from '../ui/Button';
+import { FONT } from '../ui/fonts';
+import { getUiScale, isPortrait } from '../ui/responsive';
 
 /**
  * HomeScene = menu utama.
@@ -166,25 +169,27 @@ export class HomeScene extends Phaser.Scene {
   private buildBranding(): void {
     const title = this.add
       .text(0, 0, 'FLAMY & FOAMY', {
-        fontFamily: 'Inter, system-ui, sans-serif',
-        fontSize: '15px',
+        fontFamily: FONT.DISPLAY,
+        fontSize: '20px',
         color: '#ffffff',
-        fontStyle: 'bold',
+        fontStyle: '900',
+        stroke: '#000000',
+        strokeThickness: 3,
       })
       .setOrigin(0, 0)
       .setDepth(3)
-      .setLetterSpacing(3)
+      .setLetterSpacing(4)
       .setShadow(0, 2, '#000000', 4, true, true);
 
     const sub = this.add
       .text(0, 0, 'PETUALANGAN 3 ELEMEN', {
-        fontFamily: 'Inter, system-ui, sans-serif',
-        fontSize: '9px',
+        fontFamily: FONT.HEAVY,
+        fontSize: '11px',
         color: '#5eead4',
       })
       .setOrigin(0, 0)
       .setDepth(3)
-      .setLetterSpacing(3)
+      .setLetterSpacing(4)
       .setAlpha(0.85);
 
     this.branding = { title, sub };
@@ -199,6 +204,12 @@ export class HomeScene extends Phaser.Scene {
         label: 'Level',
         accent: COLOR.LIME,
         target: SCENE.LEVEL_SELECT,
+      },
+      {
+        icon: drawHelpIcon,
+        label: 'Cara',
+        accent: COLOR.MINT,
+        target: SCENE.CARA_BERMAIN,
       },
       {
         icon: drawSettingIcon,
@@ -305,36 +316,52 @@ export class HomeScene extends Phaser.Scene {
   private layout(): void {
     const width = this.scale.gameSize.width;
     const height = this.scale.gameSize.height;
+    const ui = getUiScale(this);
+    const portrait = isPortrait(this);
 
     // ---- BG cover ----
     this.bg.setPosition(width / 2, height / 2);
     this.bgBaseScale = Math.max(width / this.bg.width, height / this.bg.height);
-    // Snap scale ke base (tween bakal tetep loop di range 1..1.04)
     this.bg.setScale(this.bgBaseScale);
 
     // ---- Vignettes ----
     this.redrawVignettes(width, height);
 
     // ---- Branding (top-left) ----
-    this.branding.title.setPosition(SAFE_PADDING, SAFE_PADDING);
-    this.branding.sub.setPosition(SAFE_PADDING, SAFE_PADDING + 22);
+    const padding = Math.round(SAFE_PADDING * ui);
+    this.branding.title.setPosition(padding, padding);
+    this.branding.title.setFontSize(Math.round(20 * ui));
+    this.branding.sub.setPosition(padding, padding + Math.round(28 * ui));
+    this.branding.sub.setFontSize(Math.max(9, Math.round(11 * ui)));
 
     // ---- Left navbar (vertical center) ----
-    const totalH = NAV_BTN_SIZE * this.navBtns.length + NAV_GAP * (this.navBtns.length - 1);
-    const startY = height / 2 - totalH / 2 + NAV_BTN_SIZE / 2;
-    const navX = SAFE_PADDING + NAV_BTN_SIZE / 2;
+    // Di portrait: pindah ke bottom-left supaya gak bentrok dengan CTA
+    const navSize = Math.round(NAV_BTN_SIZE * ui);
+    const navGap = Math.round(NAV_GAP * ui);
+    const totalH = navSize * this.navBtns.length + navGap * (this.navBtns.length - 1);
+    const startY = portrait
+      ? height - 110 * ui - totalH / 2 + navSize / 2
+      : height / 2 - totalH / 2 + navSize / 2;
+    const navX = padding + navSize / 2;
     this.navBtns.forEach((btn, i) => {
-      btn.setPosition(navX, startY + i * (NAV_BTN_SIZE + NAV_GAP));
+      btn.setScale(ui);
+      btn.setPosition(navX, startY + i * (navSize + navGap));
     });
 
     // ---- CTA (bottom center) ----
-    const ctaY = height - 70;
+    const ctaY = height - Math.round(70 * ui);
+    this.cta.setScale(ui);
     this.cta.setPosition(width / 2, ctaY);
-    this.ctaCaption.setPosition(width / 2, ctaY - CTA_H / 2 - 14);
+    this.ctaCaption.setPosition(width / 2, ctaY - Math.round((CTA_H / 2 + 14) * ui));
+    this.ctaCaption.setFontSize(Math.max(8, Math.round(9 * ui)));
 
     // ---- Music toggle (top-right) ----
     if (this.musicBtn) {
-      this.musicBtn.setPosition(width - SAFE_PADDING - 20, SAFE_PADDING + 20);
+      this.musicBtn.setScale(ui);
+      this.musicBtn.setPosition(
+        width - padding - Math.round(20 * ui),
+        padding + Math.round(20 * ui),
+      );
     }
   }
 }

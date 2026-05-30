@@ -1,19 +1,20 @@
-// Persistensi settings global (musik, sfx, volume) ke localStorage.
-// Save game progress (level complete, stones, dst) ditangani SaveManager terpisah nanti.
+// Persistensi settings global ke localStorage.
 
 const SETTINGS_KEY = 'flamy-foamy-settings-v1';
 
 export interface Settings {
   musicEnabled: boolean;
   sfxEnabled: boolean;
-  musicVolume: number; // 0..1
-  sfxVolume: number;   // 0..1
+  musicVolume: number;       // 0..1 — BGM Home & Menu
+  musicLevelVolume: number;  // 0..1 — BGM saat in-game
+  sfxVolume: number;         // 0..1 — semua SFX
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   musicEnabled: true,
   sfxEnabled: true,
   musicVolume: 0.5,
+  musicLevelVolume: 0.45,
   sfxVolume: 0.7,
 };
 
@@ -33,7 +34,7 @@ export function saveSettings(patch: Partial<Settings>): Settings {
   try {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(merged));
   } catch {
-    /* localStorage mati / quota — abaikan, settings cuma in-memory */
+    /* abaikan */
   }
   return merged;
 }

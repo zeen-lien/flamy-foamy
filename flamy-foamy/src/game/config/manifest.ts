@@ -1,5 +1,4 @@
 // Manifest semua aset yang harus di-load PreloadScene.
-// Di-pisah supaya scene preload sendiri tetep ramping & deklaratif.
 
 import { TEX, ANIM, AUDIO } from './keys';
 
@@ -28,40 +27,16 @@ export const IMAGE_ASSETS: ImageEntry[] = [
   { key: TEX.ITEM_BATUKRISTAL, path: 'assets/items/batukristal.png' },
   { key: TEX.ITEM_XP, path: 'assets/items/hp.png' },
 
-  // ui
-  { key: TEX.LOGO_GAME, path: 'assets/ui/logogame.png' },
+  // ui (yang masih dipake — header dekoratif untuk SettingScene)
   { key: TEX.HEADER_MUSIK, path: 'assets/ui/header_musik.png' },
   { key: TEX.LOADING_LOGO, path: 'assets/audio/loading-logo.png' },
 
-  // buttons single
-  { key: TEX.BTN_MULAI, path: 'assets/btnmobile/btnmulaibermain.png' },
-  { key: TEX.BTN_NEXT, path: 'assets/btnmobile/btnnext.png' },
-  { key: TEX.BTN_RESET, path: 'assets/btnmobile/btnreset.png' },
-
-  // mode switcher
+  // mode switcher (kemungkinan dipake di HUD level)
   { key: TEX.BTN_SWITCH_BATU, path: 'assets/btnmobile/btnswitch/btnswitchbatu.png' },
   { key: TEX.BTN_SWITCH_API, path: 'assets/btnmobile/btnswitch/btnswitchapi.png' },
   { key: TEX.BTN_SWITCH_AIR, path: 'assets/btnmobile/btnswitch/btnswitchair.png' },
 
-  // navbar
-  { key: TEX.BTN_NAV_HOME, path: 'assets/btnmobile/navbar/btnhome.png' },
-  { key: TEX.BTN_NAV_ABOUT, path: 'assets/btnmobile/navbar/btnabout.png' },
-  { key: TEX.BTN_NAV_LEVEL, path: 'assets/btnmobile/navbar/btnlevel.png' },
-  { key: TEX.BTN_NAV_SETTING, path: 'assets/btnmobile/navbar/btnsetting.png' },
-
-  // in-game
-  { key: TEX.BTN_IG_HOME, path: 'assets/btnmobile/btningame/btnlogohome.png' },
-  { key: TEX.BTN_IG_RESTART, path: 'assets/btnmobile/btningame/btnlogorestart.png' },
-  { key: TEX.BTN_IG_SETTING, path: 'assets/btnmobile/btningame/btnlogosetting.png' },
-  { key: TEX.BTN_IG_X, path: 'assets/btnmobile/btningame/btnlogoX.png' },
-  { key: TEX.BTN_IG_MENU, path: 'assets/btnmobile/btningame/btnmenu.png' },
-  { key: TEX.BTN_IG_RESUME, path: 'assets/btnmobile/btningame/btnresume.png' },
-
-  // music toggle
-  { key: TEX.BTN_MUSIC_ON, path: 'assets/btnmobile/btnonmusic/on/000.png' },
-  { key: TEX.BTN_MUSIC_OFF, path: 'assets/btnmobile/btnonmusic/off/000.png' },
-
-  // mobile movement (per mode)
+  // mobile movement per-mode (HUD in-game)
   { key: TEX.BTN_LEFT_BLOP, path: 'assets/btnmobile/btn_left/btnleftblop/000.png' },
   { key: TEX.BTN_LEFT_FLAMY, path: 'assets/btnmobile/btn_left/btnleftflamy/000.png' },
   { key: TEX.BTN_LEFT_FOAMY, path: 'assets/btnmobile/btn_left/btnleftfoamy/000.png' },
@@ -105,14 +80,12 @@ export const AUDIO_ASSETS: AudioEntry[] = [
 ];
 
 // ---------- Animations (multi-frame) ----------
-// Setiap entry = 1 animasi Phaser. Frame loaded sebagai image (per file PNG),
-// lalu dirakit jadi animation di anims.create().
 export interface AnimEntry {
-  key: string;          // animation key (juga jadi prefix texture key tiap frame)
-  folder: string;       // relatif ke `public/`
-  frames: number;       // jumlah PNG (000.png … (n-1).png)
+  key: string;
+  folder: string;
+  frames: number;
   frameRate: number;
-  repeat: number;       // -1 = loop infinite, 0 = sekali
+  repeat: number;
 }
 
 export const ANIM_ASSETS: AnimEntry[] = [
@@ -159,12 +132,10 @@ export const ANIM_ASSETS: AnimEntry[] = [
   { key: ANIM.TRAP_JEB3_ON, folder: 'assets/jebakan/jebakan3/on', frames: 5, frameRate: 12, repeat: -1 },
 ];
 
-/** Helper untuk generate texture key per frame yang konsisten. */
 export function frameKey(animKey: string, index: number): string {
   return `${animKey}__${index}`;
 }
 
-/** Helper format nomor 3-digit ("000", "001", dst) sesuai naming PNG. */
 export function frameFile(index: number): string {
   return `${String(index).padStart(3, '0')}.png`;
 }

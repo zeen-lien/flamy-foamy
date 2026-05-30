@@ -1,11 +1,11 @@
-// Verify all assets referenced in LAPORAN_GAME_LENGKAP.md exist on disk.
+// Verify all assets currently in use exist on disk.
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const ROOT = resolve(process.cwd(), 'public', 'assets');
 
 const expectedFolders = {
-  // player: <mode>_<action> with frame counts
+  // player animations
   'player/blop_idle': 3,
   'player/blop_run': 5,
   'player/blop_jump': 3,
@@ -47,7 +47,7 @@ const expectedFolders = {
   'cp/off': 1,
   'cp/on': 1,
 
-  // mobile button mode variants
+  // mobile in-game touch buttons (per mode)
   'btnmobile/btn_left/btnleftblop': 1,
   'btnmobile/btn_left/btnleftflamy': 1,
   'btnmobile/btn_left/btnleftfoamy': 1,
@@ -60,8 +60,6 @@ const expectedFolders = {
   'btnmobile/btnattack/btnattackblop': 1,
   'btnmobile/btnattack/btnattackflamy': 1,
   'btnmobile/btnattack/btnattackfoamy': 1,
-  'btnmobile/btnonmusic/on': 1,
-  'btnmobile/btnonmusic/off': 1,
 };
 
 const expectedFiles = [
@@ -83,27 +81,13 @@ const expectedFiles = [
   'items/batukristal.png',
   'items/hp.png',
 
-  // ui
-  'ui/logogame.png',
+  // ui (yang masih dipake)
   'ui/header_musik.png',
 
-  // mobile single buttons
-  'btnmobile/btnmulaibermain.png',
-  'btnmobile/btnnext.png',
-  'btnmobile/btnreset.png',
+  // mode switch (HUD level)
   'btnmobile/btnswitch/btnswitchair.png',
   'btnmobile/btnswitch/btnswitchapi.png',
   'btnmobile/btnswitch/btnswitchbatu.png',
-  'btnmobile/btningame/btnlogohome.png',
-  'btnmobile/btningame/btnlogorestart.png',
-  'btnmobile/btningame/btnlogosetting.png',
-  'btnmobile/btningame/btnlogoX.png',
-  'btnmobile/btningame/btnmenu.png',
-  'btnmobile/btningame/btnresume.png',
-  'btnmobile/navbar/btnabout.png',
-  'btnmobile/navbar/btnhome.png',
-  'btnmobile/navbar/btnlevel.png',
-  'btnmobile/navbar/btnsetting.png',
 
   // iconlevel
   'iconlevel/iconlevel1.png',
@@ -136,7 +120,6 @@ let frameMismatch = 0;
 
 console.log('=== ASSET VERIFICATION ===\n');
 
-console.log('-- Folders (with frame counts) --');
 for (const [rel, expectedCount] of Object.entries(expectedFolders)) {
   const full = join(ROOT, rel);
   if (!existsSync(full) || !statSync(full).isDirectory()) {
@@ -153,7 +136,6 @@ for (const [rel, expectedCount] of Object.entries(expectedFolders)) {
   }
 }
 
-console.log('\n-- Files --');
 let foundFiles = 0;
 for (const rel of expectedFiles) {
   const full = join(ROOT, rel);
@@ -171,5 +153,4 @@ console.log(`Frame mismatches   : ${frameMismatch}`);
 console.log(`Files OK           : ${foundFiles}/${expectedFiles.length}`);
 console.log(`Missing total      : ${missing}`);
 console.log(missing === 0 && frameMismatch === 0 ? '\nALL GOOD ✓' : '\nNeeds attention ✗');
-
 process.exit(missing === 0 && frameMismatch === 0 ? 0 : 1);

@@ -3,7 +3,10 @@ import { GAME_WIDTH, GAME_HEIGHT } from './config';
 import { BootScene } from './scenes/BootScene';
 import { PreloadScene } from './scenes/PreloadScene';
 import { HomeScene } from './scenes/HomeScene';
-import { LevelSelectScene, SettingScene, AboutScene } from './scenes/StubScene';
+import { LevelSelectScene } from './scenes/LevelSelectScene';
+import { SettingScene } from './scenes/SettingScene';
+import { AboutScene } from './scenes/AboutScene';
+import { CaraBermainScene } from './scenes/CaraBermainScene';
 
 export function createGame(parent: HTMLElement): Phaser.Game {
   return new Phaser.Game({
@@ -15,8 +18,6 @@ export function createGame(parent: HTMLElement): Phaser.Game {
     pixelArt: false,
     antialias: true,
     scale: {
-      // RESIZE = canvas adaptasi ke ukuran viewport (no letterbox, no crop).
-      // Setiap scene listen 'resize' event untuk reposition UI.
       mode: Phaser.Scale.RESIZE,
       width: window.innerWidth,
       height: window.innerHeight,
@@ -36,6 +37,7 @@ export function createGame(parent: HTMLElement): Phaser.Game {
       LevelSelectScene,
       SettingScene,
       AboutScene,
+      CaraBermainScene,
     ],
   });
 }

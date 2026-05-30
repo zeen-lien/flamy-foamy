@@ -84,6 +84,11 @@ export class AudioManager {
     return next;
   }
 
+  /** Apply musicEnabled state ke BGM yang sedang main (tanpa toggle). */
+  applyMusicEnabled(enabled: boolean): void {
+    if (this.currentBgm) (this.currentBgm as Phaser.Sound.WebAudioSound).setMute?.(!enabled);
+  }
+
   toggleSfx(): boolean {
     const s = loadSettings();
     const next = !s.sfxEnabled;
@@ -102,10 +107,15 @@ export class AudioManager {
     saveSettings({ sfxVolume: clamped });
   }
 
-  private applyVolume(): void {
+  private applyVolumeInternal(): void {
     const s = loadSettings();
     if (this.currentBgm) {
       (this.currentBgm as Phaser.Sound.BaseSound & { setVolume?: (v: number) => void }).setVolume?.(s.musicVolume);
     }
+  }
+
+  /** Public alias supaya scene bisa trigger volume update (misal saat slider digeser). */
+  applyVolume(): void {
+    this.applyVolumeInternal();
   }
 }

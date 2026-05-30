@@ -403,6 +403,22 @@ export const drawMusicOffIcon: IconDrawer = (g, size) => {
   g.strokePath();
 };
 
+/** Question mark / how-to-play */
+export const drawHelpIcon: IconDrawer = (g, size) => {
+  g.fillStyle(ICON_COLOR, 1);
+  // "?" stylized: top arc + dot
+  const r = size * 0.13;
+  // Curve: arc dari kiri-bawah, atas, ke kanan-bawah
+  g.lineStyle(size * 0.07, ICON_COLOR, 1);
+  g.beginPath();
+  g.arc(0, -size * 0.06, r, Phaser.Math.DegToRad(180), Phaser.Math.DegToRad(360 + 30), false);
+  g.strokePath();
+  // Tail vertical
+  g.fillRect(-size * 0.04, -size * 0.04, size * 0.08, size * 0.13);
+  // Dot bawah
+  g.fillCircle(0, size * 0.18, size * 0.05);
+};
+
 /** Back arrow */
 export const drawBackIcon: IconDrawer = (g, size) => {
   g.fillStyle(ICON_COLOR, 1);

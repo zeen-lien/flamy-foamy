@@ -20,39 +20,10 @@ export const TEX = {
   ITEM_XP: 'item_xp',
 
   // ===== UI =====
-  LOGO_GAME: 'logo_game',
   HEADER_MUSIK: 'header_musik',
   LOADING_LOGO: 'loading_logo',
 
-  // ===== Buttons (single) =====
-  BTN_MULAI: 'btn_mulai',
-  BTN_NEXT: 'btn_next',
-  BTN_RESET: 'btn_reset',
-
-  // mode switcher
-  BTN_SWITCH_BATU: 'btn_switch_batu',
-  BTN_SWITCH_API: 'btn_switch_api',
-  BTN_SWITCH_AIR: 'btn_switch_air',
-
-  // navbar
-  BTN_NAV_HOME: 'btn_nav_home',
-  BTN_NAV_ABOUT: 'btn_nav_about',
-  BTN_NAV_LEVEL: 'btn_nav_level',
-  BTN_NAV_SETTING: 'btn_nav_setting',
-
-  // in-game
-  BTN_IG_HOME: 'btn_ig_home',
-  BTN_IG_RESTART: 'btn_ig_restart',
-  BTN_IG_SETTING: 'btn_ig_setting',
-  BTN_IG_X: 'btn_ig_X',
-  BTN_IG_MENU: 'btn_ig_menu',
-  BTN_IG_RESUME: 'btn_ig_resume',
-
-  // music toggle
-  BTN_MUSIC_ON: 'btn_music_on',
-  BTN_MUSIC_OFF: 'btn_music_off',
-
-  // mobile movement (per mode)
+  // ===== Mobile in-game movement (per mode) — masih dipake buat HUD touch =====
   BTN_LEFT_BLOP: 'btn_left_blop',
   BTN_LEFT_FLAMY: 'btn_left_flamy',
   BTN_LEFT_FOAMY: 'btn_left_foamy',
@@ -65,6 +36,11 @@ export const TEX = {
   BTN_ATTACK_BLOP: 'btn_attack_blop',
   BTN_ATTACK_FLAMY: 'btn_attack_flamy',
   BTN_ATTACK_FOAMY: 'btn_attack_foamy',
+
+  // mode switcher (mungkin di-code juga, tapi keep dulu)
+  BTN_SWITCH_BATU: 'btn_switch_batu',
+  BTN_SWITCH_API: 'btn_switch_api',
+  BTN_SWITCH_AIR: 'btn_switch_air',
 
   // checkpoint
   CP_OFF: 'cp_off',
@@ -136,4 +112,5 @@ export const SCENE = {
   LEVEL_SELECT: 'LevelSelectScene',
   SETTING: 'SettingScene',
   ABOUT: 'AboutScene',
+  CARA_BERMAIN: 'CaraBermainScene',
 } as const;

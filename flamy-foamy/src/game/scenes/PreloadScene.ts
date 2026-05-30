@@ -8,6 +8,7 @@ import {
   frameFile,
 } from '../config/manifest';
 import { LoadingVortex } from '../ui/LoadingVortex';
+import { getUiScale } from '../ui/responsive';
 
 const ELEMENT_COLORS = {
   batu: 0xb8a578,
@@ -74,20 +75,22 @@ export class PreloadScene extends Phaser.Scene {
 
     this.titleText = this.add
       .text(0, 0, 'FLAMY & FOAMY', {
-        fontFamily: 'Inter, system-ui, sans-serif',
+        fontFamily: '"Cinzel", "Trajan Pro", Georgia, serif',
         fontSize: '40px',
-        color: '#ffffff',
-        fontStyle: 'bold',
+        color: '#f5f1e8',
+        fontStyle: '900',
+        stroke: '#000000',
+        strokeThickness: 4,
       })
       .setOrigin(0.5)
+      .setLetterSpacing(6)
       .setShadow(0, 4, '#000000', 8, true, true);
 
     this.subTitleText = this.add
       .text(0, 0, 'PETUALANGAN ELEMEN', {
-        fontFamily: 'Inter, system-ui, sans-serif',
-        fontSize: '12px',
+        fontFamily: '"Bebas Neue", Impact, system-ui, sans-serif',
+        fontSize: '14px',
         color: '#5eead4',
-        fontStyle: 'bold',
       })
       .setOrigin(0.5)
       .setLetterSpacing(8);
@@ -134,6 +137,7 @@ export class PreloadScene extends Phaser.Scene {
     const h = this.scale.gameSize.height;
     const cx = w / 2;
     const cy = h / 2;
+    const ui = getUiScale(this);
 
     if (this.bg) {
       this.bg.setPosition(cx, cy);
@@ -143,19 +147,30 @@ export class PreloadScene extends Phaser.Scene {
     this.overlay.setPosition(cx, cy);
     this.overlay.setSize(w, h);
 
-    // Vortex di tengah-atas, title di bawahnya
-    this.vortex.setPosition(cx, cy - 40);
+    // Vortex di tengah-atas
+    this.vortex.setScale(ui);
+    this.vortex.setPosition(cx, cy - Math.round(40 * ui));
 
-    this.titleText.setPosition(cx, cy + 80);
-    this.subTitleText.setPosition(cx, cy + 116);
+    this.titleText.setFontSize(Math.round(40 * ui));
+    this.titleText.setPosition(cx, cy + Math.round(80 * ui));
 
-    const barY = cy + 160;
+    this.subTitleText.setFontSize(Math.max(11, Math.round(14 * ui)));
+    this.subTitleText.setPosition(cx, cy + Math.round(116 * ui));
+
+    // Bar — ukuran ikut UI scale
+    this.barWidth = Math.round(520 * ui);
+    this.barHeight = Math.max(8, Math.round(12 * ui));
+
+    const barY = cy + Math.round(160 * ui);
     this.drawBarFrame(barY);
     this.drawBar(this.currentProgress);
-    this.percentText.setPosition(cx, barY - 22);
-    this.statusText.setPosition(cx, barY + 22);
+    this.percentText.setFontSize(Math.max(11, Math.round(14 * ui)));
+    this.percentText.setPosition(cx, barY - Math.round(22 * ui));
+    this.statusText.setFontSize(Math.max(9, Math.round(11 * ui)));
+    this.statusText.setPosition(cx, barY + Math.round(22 * ui));
 
-    this.hintText.setPosition(cx, h - 26);
+    this.hintText.setFontSize(Math.max(9, Math.round(10 * ui)));
+    this.hintText.setPosition(cx, h - Math.round(26 * ui));
   }
 
   private drawBarFrame(barY: number): void {
