@@ -113,4 +113,6 @@ export const SCENE = {
   SETTING: 'SettingScene',
   ABOUT: 'AboutScene',
   CARA_BERMAIN: 'CaraBermainScene',
+  PLAYER_TEST: 'PlayerTestScene',
+  HUD: 'HUDScene',
 } as const;

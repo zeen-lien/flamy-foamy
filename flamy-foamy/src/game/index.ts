@@ -7,6 +7,8 @@ import { LevelSelectScene } from './scenes/LevelSelectScene';
 import { SettingScene } from './scenes/SettingScene';
 import { AboutScene } from './scenes/AboutScene';
 import { CaraBermainScene } from './scenes/CaraBermainScene';
+import { PlayerTestScene } from './scenes/PlayerTestScene';
+import { HUDScene } from './scenes/HUDScene';
 
 export function createGame(parent: HTMLElement): Phaser.Game {
   return new Phaser.Game({
@@ -38,6 +40,8 @@ export function createGame(parent: HTMLElement): Phaser.Game {
       SettingScene,
       AboutScene,
       CaraBermainScene,
+      PlayerTestScene,
+      HUDScene,
     ],
   });
 }

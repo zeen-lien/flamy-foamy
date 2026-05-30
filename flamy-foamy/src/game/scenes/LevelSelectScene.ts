@@ -144,11 +144,11 @@ export class LevelSelectScene extends Phaser.Scene {
   }
 
   private startLevel(level: LevelId): void {
-    showToast({
-      scene: this,
-      message: `Level ${level} (${TITLE_BY_LEVEL[level]}) — segera dibikin di Step 11+`,
-      accentColor: ACCENT_BY_LEVEL[level],
-      duration: 2400,
+    // Sementara: semua level masuk PlayerTestScene (sandbox).
+    // Step 11+: ganti ke Level1Scene/Level2Scene/Level3Scene proper.
+    this.cameras.main.fadeOut(380, 0, 0, 0);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.start(SCENE.PLAYER_TEST, { level });
     });
   }
 

@@ -90,22 +90,22 @@ export interface AnimEntry {
 
 export const ANIM_ASSETS: AnimEntry[] = [
   // ===== Player Blop =====
-  { key: ANIM.PLAYER_BLOP_IDLE, folder: 'assets/player/blop_idle', frames: 3, frameRate: 6, repeat: -1 },
+  { key: ANIM.PLAYER_BLOP_IDLE, folder: 'assets/player/blop_idle', frames: 3, frameRate: 4, repeat: -1 },
   { key: ANIM.PLAYER_BLOP_RUN, folder: 'assets/player/blop_run', frames: 5, frameRate: 12, repeat: -1 },
   { key: ANIM.PLAYER_BLOP_JUMP, folder: 'assets/player/blop_jump', frames: 3, frameRate: 10, repeat: 0 },
-  { key: ANIM.PLAYER_BLOP_ATTACK, folder: 'assets/player/blop_attack', frames: 6, frameRate: 16, repeat: 0 },
+  { key: ANIM.PLAYER_BLOP_ATTACK, folder: 'assets/player/blop_attack', frames: 6, frameRate: 14, repeat: 0 },
 
   // ===== Player Fire (Flamy) =====
-  { key: ANIM.PLAYER_FIRE_IDLE, folder: 'assets/player/fire_idle', frames: 6, frameRate: 8, repeat: -1 },
+  { key: ANIM.PLAYER_FIRE_IDLE, folder: 'assets/player/fire_idle', frames: 6, frameRate: 6, repeat: -1 },
   { key: ANIM.PLAYER_FIRE_RUN, folder: 'assets/player/fire_run', frames: 6, frameRate: 14, repeat: -1 },
   { key: ANIM.PLAYER_FIRE_JUMP, folder: 'assets/player/fire_jump', frames: 4, frameRate: 12, repeat: 0 },
-  { key: ANIM.PLAYER_FIRE_ATTACK, folder: 'assets/player/fire_attack', frames: 6, frameRate: 16, repeat: 0 },
+  { key: ANIM.PLAYER_FIRE_ATTACK, folder: 'assets/player/fire_attack', frames: 6, frameRate: 14, repeat: 0 },
 
   // ===== Player Water (Foamy) =====
-  { key: ANIM.PLAYER_WATER_IDLE, folder: 'assets/player/water_idle', frames: 6, frameRate: 8, repeat: -1 },
+  { key: ANIM.PLAYER_WATER_IDLE, folder: 'assets/player/water_idle', frames: 6, frameRate: 6, repeat: -1 },
   { key: ANIM.PLAYER_WATER_RUN, folder: 'assets/player/water_run', frames: 6, frameRate: 14, repeat: -1 },
   { key: ANIM.PLAYER_WATER_JUMP, folder: 'assets/player/water_jump', frames: 6, frameRate: 12, repeat: 0 },
-  { key: ANIM.PLAYER_WATER_ATTACK, folder: 'assets/player/water_attack', frames: 6, frameRate: 16, repeat: 0 },
+  { key: ANIM.PLAYER_WATER_ATTACK, folder: 'assets/player/water_attack', frames: 6, frameRate: 14, repeat: 0 },
 
   // ===== Boss =====
   { key: ANIM.BOSS_BATU_RUN, folder: 'assets/bos/bos_batu/ebatu_run', frames: 6, frameRate: 10, repeat: -1 },
