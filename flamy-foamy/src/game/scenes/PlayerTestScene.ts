@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { SCENE, TEX } from '../config/keys';
 import { Player } from '../entities/Player';
 import { PlayerController } from '../entities/PlayerController';
+import { TerrainBlock, type TerrainStyle } from '../entities/Terrain';
 import { IconCircleButton, drawBackIcon } from '../ui/Button';
 import { FONT } from '../ui/fonts';
 import { getUiScale } from '../ui/responsive';
@@ -10,7 +11,6 @@ import { showToast } from '../ui/Toast';
 import { LEVEL_TARGETS, type LevelId } from '../state/SaveManager';
 
 const FLOOR_Y_FROM_BOTTOM = 80;
-const PLATFORM_COLOR = 0x4a3f5e;
 
 const ACCENT_BY_LEVEL: Record<LevelId, number> = {
   1: 0xb8a578,
@@ -131,6 +131,16 @@ export class PlayerTestScene extends Phaser.Scene {
       showToast({ scene: this, message: 'Pause coming soon (Step 17)' });
     });
 
+    // Touch controls bridge
+    this.events.on('hud:virtualLeft', (down: boolean) => {
+      this.controller.setVirtualHorizontal(down ? 'left' : 'none');
+    });
+    this.events.on('hud:virtualRight', (down: boolean) => {
+      this.controller.setVirtualHorizontal(down ? 'right' : 'none');
+    });
+    this.events.on('hud:virtualJump', () => this.controller.triggerVirtualJump());
+    this.events.on('hud:virtualAttack', () => this.controller.triggerVirtualAttack());
+
     // Sample testing keys: G = +25 coin, B = +1 stone, M = -20 hp
     this.input.keyboard?.on('keydown-G', () => {
       this.skor_koin += 25;
@@ -147,6 +157,17 @@ export class PlayerTestScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-N', () => {
       this.player.heal(30);
       this.events.emit('hud:hp', { hp: this.player.hp, max: 200 });
+    });
+    // Toggle physics debug (P) untuk verify collision box vs visual
+    this.input.keyboard?.on('keydown-P', () => {
+      const dbg = this.physics.world.drawDebug;
+      this.physics.world.drawDebug = !dbg;
+      if (this.physics.world.debugGraphic) {
+        this.physics.world.debugGraphic.setVisible(!dbg);
+        this.physics.world.debugGraphic.clear();
+      } else if (!dbg) {
+        this.physics.world.createDebugGraphic();
+      }
     });
 
     this.layout();
@@ -165,20 +186,67 @@ export class PlayerTestScene extends Phaser.Scene {
   private buildPlatforms(): void {
     const w = this.scale.width;
     const h = this.scale.height;
-    this.addPlatform(w / 2, h - FLOOR_Y_FROM_BOTTOM / 2, w, FLOOR_Y_FROM_BOTTOM);
     const floorY = h - FLOOR_Y_FROM_BOTTOM;
-    this.addPlatform(450, floorY - 110, 180, 22);
-    this.addPlatform(700, floorY - 200, 160, 22);
-    this.addPlatform(950, floorY - 110, 180, 22);
-    this.addPlatform(1200, floorY - 220, 180, 22);
+    const floorH = FLOOR_Y_FROM_BOTTOM;
+
+    // ----- Floor: 1 collision zone full-width + beberapa visual segmen -----
+    this.addCollider(w / 2, floorY + floorH / 2, w, floorH);
+
+    const segmentCount = Math.max(3, Math.ceil(w / 320));
+    const segmentW = w / segmentCount;
+    const styles: TerrainStyle[] = ['rock', 'mossy', 'rubble', 'brick', 'crystal'];
+    for (let i = 0; i < segmentCount; i++) {
+      const styleIdx = (i * 3 + 1) % styles.length;
+      const style = styles[styleIdx];
+      const cx = i * segmentW + segmentW / 2;
+      const tb = new TerrainBlock({
+        scene: this,
+        x: cx,
+        y: floorY + floorH / 2,
+        width: segmentW + 1,
+        height: floorH,
+        style,
+        accentColor: ACCENT_BY_LEVEL[this.currentLevel],
+        seed: i * 7 + this.currentLevel * 31,
+      });
+      tb.setDepth(2);
+    }
+
+    // ----- Platform melayang: visual + collider masing-masing -----
+    const floats: Array<{ cx: number; cy: number; w: number; h: number; style: TerrainStyle; seed: number }> = [
+      { cx: 450, cy: floorY - 110, w: 180, h: 30, style: 'mossy', seed: 11 },
+      { cx: 700, cy: floorY - 200, w: 160, h: 30, style: 'crystal', seed: 22 },
+      { cx: 950, cy: floorY - 110, w: 180, h: 30, style: 'brick', seed: 33 },
+      { cx: 1200, cy: floorY - 220, w: 180, h: 30, style: 'rubble', seed: 44 },
+    ];
+    for (const f of floats) {
+      const tb = new TerrainBlock({
+        scene: this,
+        x: f.cx,
+        y: f.cy,
+        width: f.w,
+        height: f.h,
+        style: f.style,
+        accentColor: ACCENT_BY_LEVEL[this.currentLevel],
+        seed: f.seed,
+      });
+      tb.setDepth(3);
+      this.addCollider(f.cx, f.cy, f.w, f.h);
+    }
   }
 
-  private addPlatform(cx: number, cy: number, w: number, h: number): void {
-    const r = this.add.rectangle(cx, cy, w, h, PLATFORM_COLOR, 0.95);
-    r.setStrokeStyle(1, 0xffffff, 0.18);
-    r.setDepth(3);
-    this.physics.add.existing(r, true);
-    this.platforms.add(r);
+  /**
+   * Tambah collider statis invisible di posisi/ukuran tertentu.
+   * Pakai Rectangle (bukan Zone) karena static body Rectangle reliable
+   * nge-center (origin 0.5,0.5 + updateFromGameObject), jadi permukaan
+   * collision tepat di top visual terrain.
+   */
+  private addCollider(cx: number, cy: number, w: number, h: number): void {
+    const rect = this.add.rectangle(cx, cy, w, h, 0x00ff00, 0); // alpha 0 = invisible
+    this.physics.add.existing(rect, true); // static
+    const body = rect.body as Phaser.Physics.Arcade.StaticBody;
+    body.updateFromGameObject();
+    this.platforms.add(rect);
   }
 
   private exitToHome(): void {

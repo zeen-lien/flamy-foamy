@@ -7,6 +7,7 @@ import { CoinBadge } from '../hud/CoinBadge';
 import { StoneBadge } from '../hud/StoneBadge';
 import { ModeSwitcher } from '../hud/ModeSwitcher';
 import { PauseButton } from '../hud/PauseButton';
+import { TouchControls } from '../hud/TouchControls';
 import { showToast } from '../ui/Toast';
 
 /**
@@ -44,6 +45,7 @@ export class HUDScene extends Phaser.Scene {
   private stone!: StoneBadge;
   private mode!: ModeSwitcher;
   private pause!: PauseButton;
+  private touch?: TouchControls;
 
   private hudData!: HUDInitData;
   private parentScene!: Phaser.Scene;
@@ -93,11 +95,30 @@ export class HUDScene extends Phaser.Scene {
       onClick: () => parent.events.emit('hud:pause'),
     });
 
+    // Touch controls — hanya ditampilin di device dengan touch atau viewport sempit.
+    if (this.shouldShowTouch()) {
+      this.touch = new TouchControls(this, {
+        buttonSize: 76,
+        edgePadding: 24,
+        pairGap: 32,
+        initialMode: this.hudData.mode,
+        callbacks: {
+          onLeft: (down) => parent.events.emit('hud:virtualLeft', down),
+          onRight: (down) => parent.events.emit('hud:virtualRight', down),
+          onJump: () => parent.events.emit('hud:virtualJump'),
+          onAttack: () => parent.events.emit('hud:virtualAttack'),
+        },
+      });
+    }
+
     // Listeners dari parent scene
     parent.events.on('hud:hp', (p: { hp: number; max?: number }) => this.hp.setHp(p.hp, p.max));
     parent.events.on('hud:coin', (v: number) => this.coin.setValue(v));
     parent.events.on('hud:stone', (v: number) => this.stone.setValue(v));
-    parent.events.on('hud:mode', (m: PlayerMode) => this.mode.setCurrent(m));
+    parent.events.on('hud:mode', (m: PlayerMode) => {
+      this.mode.setCurrent(m);
+      this.touch?.setMode(m);
+    });
     parent.events.on('hud:unlocks', (u: { fire: boolean; water: boolean }) => this.mode.setUnlocked(u));
 
     // Cleanup saat parent scene shutdown
@@ -134,11 +155,25 @@ export class HUDScene extends Phaser.Scene {
     );
 
     // Mode switcher â€” BOTTOM-center
+    // Mode switcher — selalu bottom-center.
+    // Touch buttons di pojok kiri-bawah & kanan-bawah, mode switcher di
+    // tengah-bawah, ketiga area tidak overlap.
     this.mode.setScale(ui);
     this.mode.setPosition(w / 2, h - Math.round(60 * ui));
 
     // Pause â€” top-right
     this.pause.setScale(ui);
     this.pause.setPosition(w - padding - (44 * ui) / 2, padding + (44 * ui) / 2);
+
+    // Touch controls (bottom edges) — pakai layout method sendiri
+    this.touch?.layout(w, h, ui);
+  }
+
+  private shouldShowTouch(): boolean {
+    // Force-show kalau viewport sempit (kayak phone landscape) atau device touch
+    const device = this.sys.game.device;
+    if (device.input.touch) return true;
+    const w = this.scale.gameSize.width;
+    return w < 900;
   }
 }

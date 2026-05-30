@@ -144,11 +144,14 @@ export class LevelSelectScene extends Phaser.Scene {
   }
 
   private startLevel(level: LevelId): void {
-    // Sementara: semua level masuk PlayerTestScene (sandbox).
-    // Step 11+: ganti ke Level1Scene/Level2Scene/Level3Scene proper.
     this.cameras.main.fadeOut(380, 0, 0, 0);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      this.scene.start(SCENE.PLAYER_TEST, { level });
+      if (level === 1) {
+        this.scene.start(SCENE.LEVEL1);
+      } else {
+        // Level 2 & 3 belum dibikin — sementara ke sandbox test
+        this.scene.start(SCENE.PLAYER_TEST, { level });
+      }
     });
   }
 

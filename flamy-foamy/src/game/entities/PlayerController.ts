@@ -71,6 +71,22 @@ export class PlayerController {
     Object.assign(this.virtual, state);
   }
 
+  /** Helper buat HUD: trigger single-shot jump (auto-reset di update()). */
+  triggerVirtualJump(): void {
+    this.virtual.jumpPressed = true;
+  }
+
+  /** Helper buat HUD: trigger single-shot attack. */
+  triggerVirtualAttack(): void {
+    this.virtual.attackPressed = true;
+  }
+
+  /** Helper: set arah hold kiri/kanan. */
+  setVirtualHorizontal(dir: 'left' | 'right' | 'none'): void {
+    this.virtual.left = dir === 'left';
+    this.virtual.right = dir === 'right';
+  }
+
   update(): void {
     if (this.player.isDead) return;
 

@@ -41,7 +41,10 @@ export type PlayerAction = 'idle' | 'run' | 'jump' | 'attack';
 
 const BODY_W = 48;
 const BODY_H = 64;
-const SPRITE_RENDER_HEIGHT = 96; // tinggi visual sprite, lebih besar dari body biar kelihatan natural
+const SPRITE_RENDER_HEIGHT = 92; // tinggi visual sprite
+// Art PNG karakter punya pedang/efek di bawah kaki, jadi sprite di-angkat
+// ke atas supaya bagian "berdiri" napak di permukaan (bukan tenggelam).
+const FOOT_LIFT = 18;
 
 export class Player extends Phaser.GameObjects.Container {
   declare body: Phaser.Physics.Arcade.Body;
@@ -64,7 +67,9 @@ export class Player extends Phaser.GameObjects.Container {
     // tiap frame PNG punya tinggi/lebar berbeda. Sprite digeser ke bawah
     // sehingga feet sprite = bottom body.
     const initialKey = `${ANIM.PLAYER_BLOP_IDLE}__0`;
-    this.sprite = scene.add.sprite(0, BODY_H / 2, initialKey);
+    // sprite anchor (0.5,1) di y = bottom body - FOOT_LIFT, supaya kaki
+    // sprite napak di permukaan collider (bukan tenggelam).
+    this.sprite = scene.add.sprite(0, BODY_H / 2 - FOOT_LIFT, initialKey);
     this.sprite.setOrigin(0.5, 1);
     this.add(this.sprite);
 
