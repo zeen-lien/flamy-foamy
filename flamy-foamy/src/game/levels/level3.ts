@@ -2,7 +2,7 @@ import type { TerrainStyle } from '../entities/Terrain';
 import type { TrapVariant } from '../entities/Trap';
 
 /**
- * Data Level 3 — Dunia Air. Width: 18000px. 4 areas.
+ * Data Level 3 â€” Dunia Air. Width: 18000px. 4 areas.
  * Area 3A (0-4500): Pengenalan Foamy mode. Water zones.
  * Area 3B (4500-9500): Ice platforms + water jets.
  * Area 3C (9500-14500): Multi-element maze. Rapid switching.
@@ -54,18 +54,18 @@ export const LEVEL3_TERRAIN: TerrainDef[] = [
 
   // ===== 3B (4500-9500) Ice platforms + water jets =====
   { x: 4700, y: G + 60, w: 400, h: 140, style: 'ice', seed: 220 },
-  // Floating ice platforms
-  { x: 5200, y: T1, w: 180, h: 26, style: 'ice', seed: 221 },
-  { x: 5460, y: T2, w: 170, h: 26, style: 'crystal', seed: 222 },
-  { x: 5720, y: T1, w: 180, h: 26, style: 'ice', seed: 223 },
+  // Floating ice platforms (gap rapat ~220px)
+  { x: 5150, y: T1, w: 180, h: 26, style: 'ice', seed: 221 },
+  { x: 5370, y: T2, w: 170, h: 26, style: 'crystal', seed: 222 },
+  { x: 5590, y: T1, w: 180, h: 26, style: 'ice', seed: 223 },
   { x: 5980, y: G + 60, w: 420, h: 140, style: 'mossy', seed: 224 },
   // Water jet section
   { x: 6500, y: G + 60, w: 500, h: 140, style: 'ice', seed: 225 },
   { x: 7000, y: G + 60, w: 500, h: 140, style: 'rock', seed: 226 },
-  // More ice platforms
-  { x: 7600, y: T1, w: 170, h: 26, style: 'ice', seed: 227 },
-  { x: 7840, y: T2, w: 170, h: 26, style: 'crystal', seed: 228 },
-  { x: 8080, y: T1, w: 170, h: 26, style: 'ice', seed: 229 },
+  // More ice platforms (gap rapat ~220px)
+  { x: 7550, y: T1, w: 170, h: 26, style: 'ice', seed: 227 },
+  { x: 7770, y: T2, w: 170, h: 26, style: 'crystal', seed: 228 },
+  { x: 7990, y: T1, w: 170, h: 26, style: 'ice', seed: 229 },
   { x: 8350, y: G + 60, w: 440, h: 140, style: 'mossy', seed: 230 },
   // Landing before 3C
   { x: 8900, y: G + 60, w: 500, h: 140, style: 'ice', seed: 231 },
@@ -83,12 +83,12 @@ export const LEVEL3_TERRAIN: TerrainDef[] = [
   // Fire zone again
   // Gap (12240-12600 = lava zone)
   { x: 12800, y: G + 60, w: 440, h: 140, style: 'rock', seed: 245 },
-  // Zigzag climb
-  { x: 13150, y: T1, w: 170, h: 26, style: 'ice', seed: 246 },
-  { x: 13380, y: T2, w: 170, h: 26, style: 'crystal', seed: 247 },
-  { x: 13610, y: T3, w: 180, h: 26, style: 'ice', seed: 248 },
-  { x: 13840, y: T2, w: 170, h: 26, style: 'rock', seed: 249 },
-  { x: 14070, y: T1, w: 170, h: 26, style: 'mossy', seed: 250 },
+  // Zigzag climb (gap ~210px)
+  { x: 13100, y: T1, w: 170, h: 26, style: 'ice', seed: 246 },
+  { x: 13310, y: T2, w: 170, h: 26, style: 'crystal', seed: 247 },
+  { x: 13520, y: T3, w: 180, h: 26, style: 'ice', seed: 248 },
+  { x: 13730, y: T2, w: 170, h: 26, style: 'rock', seed: 249 },
+  { x: 13940, y: T1, w: 170, h: 26, style: 'mossy', seed: 250 },
   { x: 14300, y: G + 60, w: 400, h: 140, style: 'ice', seed: 251 },
 
   // ===== 3D (14500-18000) Boss Es arena =====
@@ -108,11 +108,11 @@ export const LEVEL3_COINS: CoinDef[] = [
   { x: 4200, y: G - 55 }, { x: 4300, y: G - 55 },
   // 3B
   { x: 4700, y: G - 55 }, { x: 4800, y: G - 55 },
-  { x: 5200, y: T1 - 45 }, { x: 5460, y: T2 - 45 }, { x: 5720, y: T1 - 45 },
+  { x: 5150, y: T1 - 45 }, { x: 5370, y: T2 - 45 }, { x: 5590, y: T1 - 45 },
   { x: 5980, y: G - 55 }, { x: 6080, y: G - 55 }, { x: 6180, y: G - 55 },
   { x: 6500, y: G - 55 }, { x: 6600, y: G - 55 }, { x: 6700, y: G - 55 },
   { x: 7000, y: G - 55 }, { x: 7100, y: G - 55 }, { x: 7200, y: G - 55 },
-  { x: 7600, y: T1 - 45 }, { x: 7840, y: T2 - 45 }, { x: 8080, y: T1 - 45 },
+  { x: 7550, y: T1 - 45 }, { x: 7770, y: T2 - 45 }, { x: 7990, y: T1 - 45 },
   { x: 8350, y: G - 55 }, { x: 8450, y: G - 55 },
   { x: 8900, y: G - 55 }, { x: 9000, y: G - 55 }, { x: 9100, y: G - 55 },
   // 3C
@@ -121,8 +121,8 @@ export const LEVEL3_COINS: CoinDef[] = [
   { x: 10780, y: G - 55 }, { x: 10880, y: G - 55 }, { x: 10980, y: G - 55 },
   { x: 11800, y: G - 55 }, { x: 11900, y: G - 55 }, { x: 12000, y: G - 55 },
   { x: 12800, y: G - 55 }, { x: 12900, y: G - 55 }, { x: 13000, y: G - 55 },
-  { x: 13150, y: T1 - 45 }, { x: 13380, y: T2 - 45 }, { x: 13610, y: T3 - 45 },
-  { x: 13840, y: T2 - 45 }, { x: 14070, y: T1 - 45 },
+  { x: 13100, y: T1 - 45 }, { x: 13310, y: T2 - 45 }, { x: 13520, y: T3 - 45 },
+  { x: 13730, y: T2 - 45 }, { x: 13940, y: T1 - 45 },
   { x: 14300, y: G - 55 }, { x: 14400, y: G - 55 },
   // 3D
   { x: 15000, y: G - 55 }, { x: 15150, y: G - 55 }, { x: 15300, y: G - 55 },
@@ -136,22 +136,22 @@ export const LEVEL3_COINS: CoinDef[] = [
 export const LEVEL3_STONES: StoneDef[] = [
   { x: 700, y: G - 60 },
   { x: 1750, y: T1 - 50 },
-  { x: 5460, y: T2 - 50 },
+  { x: 5370, y: T2 - 50 },
   { x: 6700, y: G - 60 },
-  { x: 7840, y: T2 - 50 },
+  { x: 7770, y: T2 - 50 },
   { x: 9000, y: G - 60 },
   { x: 10540, y: T2 - 50 },
   { x: 12900, y: G - 60 },
-  { x: 13610, y: T3 - 50 },
+  { x: 13520, y: T3 - 50 },
   { x: 14300, y: G - 60 },
 ];
 
 export const LEVEL3_XP: XpDef[] = [
   { x: 1050, y: T1 - 50 },
-  { x: 5720, y: T1 - 50 },
-  { x: 8080, y: T1 - 50 },
+  { x: 5590, y: T1 - 50 },
+  { x: 7990, y: T1 - 50 },
   { x: 10300, y: T1 - 50 },
-  { x: 13380, y: T2 - 50 },
+  { x: 13310, y: T2 - 50 },
 ];
 
 export const LEVEL3_CHECKPOINTS: CheckpointDef[] = [
@@ -179,14 +179,14 @@ export const LEVEL3_SPIKES: SpikeDef[] = [
 ];
 
 export const LEVEL3_TRAPS: TrapDef[] = [
-  // 3A — intro
+  // 3A â€” intro
   { x: 2320, y: G, variant: 1, onDur: 2000, offDur: 2600, delay: 0 },
-  // 3B — water jets (saws) + flames
+  // 3B â€” water jets (saws) + flames
   { x: 6500, y: G, variant: 2, onDur: 1800, offDur: 2200, delay: 0 },
   { x: 6700, y: G, variant: 2, onDur: 1800, offDur: 2200, delay: 900 },
   { x: 7000, y: G, variant: 3, onDur: 1600, offDur: 2000, delay: 400 },
   { x: 7200, y: G, variant: 3, onDur: 1600, offDur: 2000, delay: 1200 },
-  // 3C — multi-element maze (dense traps)
+  // 3C â€” multi-element maze (dense traps)
   { x: 9800, y: G, variant: 3, onDur: 1400, offDur: 1800, delay: 0 },
   { x: 10000, y: G, variant: 1, onDur: 1800, offDur: 2200, delay: 600 },
   { x: 10780, y: G, variant: 2, onDur: 1600, offDur: 2000, delay: 0 },
@@ -197,7 +197,7 @@ export const LEVEL3_TRAPS: TrapDef[] = [
 ];
 
 export const LEVEL3_ENVTEXT: EnvTextDef[] = [
-  { x: 240, y: G - 120, text: 'Dunia Air… dingin menusuk tulang.', trigger: 200 },
+  { x: 240, y: G - 120, text: 'Dunia Airâ€¦ dingin menusuk tulang.', trigger: 200 },
   { x: 1800, y: G - 140, text: 'Ganti ke mode Foamy! Tekan C', trigger: 240 },
   { x: 2840, y: G - 150, text: 'Zona air! Hanya Foamy yang tahan.', trigger: 240 },
   { x: 4700, y: G - 140, text: 'Platform es licin. Hati-hati melompat!', trigger: 240 },
@@ -205,18 +205,18 @@ export const LEVEL3_ENVTEXT: EnvTextDef[] = [
   { x: 9800, y: G - 150, text: 'Zona multi-elemen! Ganti mode cepat.', trigger: 260 },
   { x: 10780, y: G - 140, text: 'Zona air di depan. Ganti ke Foamy! Tekan C', trigger: 240 },
   { x: 12800, y: G - 140, text: 'Zona lava! Ganti ke Flamy! Tekan X', trigger: 240 },
-  { x: 14300, y: G - 130, text: '"Penjaga Es menanti… bersiaplah."', trigger: 260 },
+  { x: 14300, y: G - 130, text: '"Penjaga Es menantiâ€¦ bersiaplah."', trigger: 260 },
 ];
 
 export const LEVEL3_WATERZONES: WaterZoneDef[] = [
-  // 3A — intro water zone
-  { x: 3420, y: G + 20, w: 380, h: 120 },
-  // 3C — water zones in multi-element maze
-  { x: 11410, y: G + 20, w: 380, h: 120 },
+  // 3A â€” intro water zone
+  { x: 3420, y: G + 20, w: 200, h: 30 },
+  // 3C â€” water zones in multi-element maze
+  { x: 11410, y: G + 20, w: 200, h: 30 },
   { x: 13050, y: G + 20, w: 300, h: 120 },
 ];
 
 export const LEVEL3_LAVAZONES: LavaZoneDef[] = [
-  // 3C — lava zones in multi-element maze
-  { x: 12420, y: G + 20, w: 380, h: 120 },
+  // 3C â€” lava zones in multi-element maze
+  { x: 12420, y: G + 20, w: 200, h: 30 },
 ];

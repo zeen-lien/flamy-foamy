@@ -86,12 +86,12 @@ export class Boss extends Phaser.GameObjects.Container {
   onDeath(cb: () => void): void { this.onDeathFn = cb; }
 
   private fitSprite(): void {
+    // LOCK tinggi konstan (renderH) — lebar ngikutin aspect frame.
+    // Ini mencegah size berubah antara idle/run/attack karena PNG beda resolusi.
     const f = this.sprite.frame;
     if (!f || f.height <= 0) return;
     const aspect = f.width / f.height;
     this.sprite.setDisplaySize(this.renderH * aspect, this.renderH);
-    // Art boss menghadap KANAN secara default. Untuk menghadap kiri
-    // (ke arah player di kiri), flipX = true saat facingLeft.
     this.sprite.setFlipX(this.facingLeft);
   }
 

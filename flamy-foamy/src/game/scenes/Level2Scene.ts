@@ -7,6 +7,7 @@ import { Collectible } from '../entities/Collectible';
 import { Checkpoint } from '../entities/Checkpoint';
 import { Spike } from '../entities/Spike';
 import { Trap } from '../entities/Trap';
+import { HazardZone } from '../entities/HazardZone';
 import { Boss } from '../entities/Boss';
 import { Egg } from '../entities/Egg';
 import { EnvText } from '../entities/EnvText';
@@ -47,7 +48,7 @@ export class Level2Scene extends Phaser.Scene {
   private envTexts: EnvText[] = [];
   private spikes: Spike[] = [];
   private traps: Trap[] = [];
-  private lavaZones: Phaser.GameObjects.Rectangle[] = [];
+  private lavaZones: HazardZone[] = [];
   private boss?: Boss;
   private egg?: Egg;
   private bossTriggered = false;
@@ -319,27 +320,36 @@ export class Level2Scene extends Phaser.Scene {
 
   private buildLavaZones(): void {
     for (const lz of LEVEL2_LAVAZONES) {
-      const zone = this.add.rectangle(lz.x, lz.y, lz.w, lz.h, 0xff4500, 0.15);
-      zone.setDepth(1);
-      this.physics.add.existing(zone, true);
-      (zone.body as Phaser.Physics.Arcade.StaticBody).updateFromGameObject();
+      const zone = new HazardZone({
+        scene: this,
+        x: lz.x,
+        y: lz.y,
+        width: lz.w,
+        type: 'lava',
+      });
+      zone.setDepth(3);
       this.lavaZones.push(zone);
+      // Collider: player bisa berdiri di atasnya (solid platform)
+      this.physics.add.collider(this.player, zone.platform);
     }
   }
 
   private checkLavaZones(): void {
     if (this.player.isDead) return;
     if (this.time.now < this.invulnerableUntil) return;
-    const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
-    const playerRect = new Phaser.Geom.Rectangle(playerBody.x, playerBody.y, playerBody.width, playerBody.height);
+    const pb = this.player.body as Phaser.Physics.Arcade.Body;
     for (const zone of this.lavaZones) {
-      const body = zone.body as Phaser.Physics.Arcade.StaticBody;
-      const zoneRect = new Phaser.Geom.Rectangle(body.x, body.y, body.width, body.height);
-      if (Phaser.Geom.Intersects.RectangleToRectangle(playerRect, zoneRect)) {
-        if (this.player.mode !== 'fire') {
-          this.respawnPlayer();
-          return;
-        }
+      zone.tick(this.game.loop.delta);
+      const zb = zone.platform.body as Phaser.Physics.Arcade.StaticBody;
+      // Manual AABB overlap check
+      const overlap =
+        pb.x < zb.x + zb.width &&
+        pb.x + pb.width > zb.x &&
+        pb.y < zb.y + zb.height &&
+        pb.y + pb.height > zb.y;
+      if (overlap && this.player.mode !== 'fire') {
+        this.onHazardHit();
+        return;
       }
     }
   }
