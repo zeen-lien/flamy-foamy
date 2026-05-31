@@ -187,10 +187,8 @@ export class HUDScene extends Phaser.Scene {
   }
 
   private shouldShowTouch(): boolean {
-    // Force-show kalau viewport sempit (kayak phone landscape) atau device touch
-    const device = this.sys.game.device;
-    if (device.input.touch) return true;
-    const w = this.scale.gameSize.width;
-    return w < 900;
+    // Game ini target mobile (APK) → touch controls SELALU tampil,
+    // baik di HP maupun desktop. Keyboard tetap bisa dipakai paralel.
+    return true;
   }
 }

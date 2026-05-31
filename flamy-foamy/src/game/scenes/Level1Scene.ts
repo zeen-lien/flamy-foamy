@@ -485,7 +485,7 @@ export class Level1Scene extends Phaser.Scene {
       attackCooldown: 1800,
       damage: 8,
       chaseSpeed: 130,
-      renderHeight: 200,
+      renderHeight: 170,
     });
     this.boss.setDepth(6);
     this.physics.add.collider(this.boss, this.platforms);
