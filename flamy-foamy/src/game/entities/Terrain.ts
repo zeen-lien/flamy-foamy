@@ -10,11 +10,13 @@ import Phaser from 'phaser';
  *  - 'brick'       : pattern bata kuno + cracks + moss spot
  *  - 'crystal'     : batu + kristal kecil sticking up (warna sesuai elemen)
  *  - 'rubble'      : reruntuhan low-rise, banyak chunk overlap
+ *  - 'lava'        : black obsidian rock with glowing red/orange lava cracks
+ *  - 'ice'         : pale blue/white crystalline surface with frost patterns
  *
  * Setiap style punya color palette default tapi bisa di-override.
  */
 
-export type TerrainStyle = 'rock' | 'mossy' | 'brick' | 'crystal' | 'rubble';
+export type TerrainStyle = 'rock' | 'mossy' | 'brick' | 'crystal' | 'rubble' | 'lava' | 'ice';
 
 export interface TerrainBlockOptions {
   scene: Phaser.Scene;
@@ -35,6 +37,8 @@ const PALETTE = {
   brick: { base: 0x6b5a48, dark: 0x4a3d30, light: 0x8c7558, edge: 0x4a3d30, mortar: 0x2e261d },
   crystal: { base: 0x4a4054, dark: 0x2a2435, light: 0x6b6178, edge: 0x3a3344 },
   rubble: { base: 0x554b5f, dark: 0x33293c, light: 0x7a6e88, edge: 0x3a3344 },
+  lava: { base: 0x1a1020, dark: 0x0d0810, light: 0x2a2035, edge: 0x0d0810, crack: 0xff4500, glow: 0xff6a00, molten: 0xffaa00 },
+  ice: { base: 0xc8e8f8, dark: 0x8ab8d8, light: 0xe8f4ff, edge: 0x6aa0c8, frost: 0xffffff, frostDark: 0xa0d0f0 },
 };
 
 /** Simple seeded PRNG (mulberry32) supaya generation bisa deterministik. */
@@ -95,6 +99,8 @@ export class TerrainBlock extends Phaser.GameObjects.Container {
       case 'brick': this.drawBrick(); break;
       case 'crystal': this.drawCrystal(); break;
       case 'rubble': this.drawRubble(); break;
+      case 'lava': this.drawLava(); break;
+      case 'ice': this.drawIce(); break;
     }
   }
 
@@ -451,5 +457,172 @@ export class TerrainBlock extends Phaser.GameObjects.Container {
     // Outline
     this.g.lineStyle(1, p.edge, 0.9);
     this.g.strokeRect(-w / 2, -h / 2, w, h);
+  }
+
+  // ============================================================
+  //                    STYLE: LAVA
+  // ============================================================
+
+  private drawLava(): void {
+    const w = this.wPx;
+    const h = this.hPx;
+    const p = PALETTE.lava;
+
+    // Top edge bergerigi
+    const ampl = Math.min(5, h * 0.12);
+    const top = this.jaggedTop(ampl, 16);
+
+    const bodyPts = [
+      ...top,
+      { x: w / 2, y: h / 2 },
+      { x: -w / 2, y: h / 2 },
+    ];
+
+    // Drop shadow
+    this.g.fillStyle(0x000000, 0.5);
+    this.g.fillPoints(bodyPts.map((pt) => ({ x: pt.x + 2, y: pt.y + 4 })), true);
+
+    // Base body — dark obsidian
+    this.g.fillStyle(p.base, 1);
+    this.g.fillPoints(bodyPts, true);
+
+    // Darker bottom gradient
+    this.g.fillStyle(p.dark, 0.6);
+    this.g.fillRect(-w / 2, h * 0.05, w, h * 0.45);
+
+    // Lava cracks — glowing red/orange lines
+    const crackCount = 3 + Math.floor(this.rng() * 4);
+    for (let i = 0; i < crackCount; i++) {
+      const cx = -w / 2 + this.rng() * w;
+      const startY = -h / 2 + 6 + this.rng() * 8;
+      let y = startY;
+      // Glow behind crack
+      this.g.lineStyle(4, p.glow, 0.3);
+      this.g.beginPath();
+      this.g.moveTo(cx, y);
+      const steps = 3 + Math.floor(this.rng() * 3);
+      const crackPts: Array<{ x: number; y: number }> = [{ x: cx, y }];
+      for (let s = 0; s < steps; s++) {
+        const dx = (this.rng() - 0.5) * 12;
+        const dy = 6 + this.rng() * 10;
+        crackPts.push({ x: cx + dx, y: y + dy });
+        y += dy;
+        if (y > h / 2 - 4) break;
+      }
+      for (const pt of crackPts) this.g.lineTo(pt.x, pt.y);
+      this.g.strokePath();
+      // Bright crack line
+      this.g.lineStyle(1.5, p.crack, 0.9);
+      this.g.beginPath();
+      this.g.moveTo(crackPts[0].x, crackPts[0].y);
+      for (let s = 1; s < crackPts.length; s++) this.g.lineTo(crackPts[s].x, crackPts[s].y);
+      this.g.strokePath();
+    }
+
+    // Molten glow spots at edges
+    const glowCount = Math.max(2, Math.floor(w / 80));
+    for (let i = 0; i < glowCount; i++) {
+      const gx = -w / 2 + this.rng() * w;
+      const gy = -h / 2 + this.rng() * 6;
+      this.g.fillStyle(p.molten, 0.25);
+      this.g.fillCircle(gx, gy, 6 + this.rng() * 8);
+      this.g.fillStyle(p.crack, 0.15);
+      this.g.fillCircle(gx, gy, 3 + this.rng() * 4);
+    }
+
+    // Bottom edge molten glow
+    this.g.fillStyle(p.glow, 0.15);
+    this.g.fillRect(-w / 2, h / 2 - 6, w, 6);
+
+    // Top edge highlight (dim red)
+    this.g.lineStyle(2, p.crack, 0.4);
+    this.g.beginPath();
+    this.g.moveTo(top[0].x, top[0].y);
+    for (let i = 1; i < top.length; i++) this.g.lineTo(top[i].x, top[i].y);
+    this.g.strokePath();
+
+    // Outline
+    this.g.lineStyle(1, p.edge, 0.9);
+    this.g.strokePoints(bodyPts, true);
+  }
+
+  // ============================================================
+  //                    STYLE: ICE
+  // ============================================================
+
+  private drawIce(): void {
+    const w = this.wPx;
+    const h = this.hPx;
+    const p = PALETTE.ice;
+
+    // Top edge slightly jagged (crystalline)
+    const ampl = Math.min(4, h * 0.1);
+    const top = this.jaggedTop(ampl, 22);
+
+    const bodyPts = [
+      ...top,
+      { x: w / 2, y: h / 2 },
+      { x: -w / 2, y: h / 2 },
+    ];
+
+    // Drop shadow
+    this.g.fillStyle(0x000000, 0.2);
+    this.g.fillPoints(bodyPts.map((pt) => ({ x: pt.x + 1, y: pt.y + 3 })), true);
+
+    // Base body — pale blue
+    this.g.fillStyle(p.base, 1);
+    this.g.fillPoints(bodyPts, true);
+
+    // Transparency effect — lighter center
+    this.g.fillStyle(p.light, 0.4);
+    this.g.fillRect(-w / 2 + w * 0.15, -h / 2 + 4, w * 0.7, h * 0.5);
+
+    // Darker bottom
+    this.g.fillStyle(p.dark, 0.35);
+    this.g.fillRect(-w / 2, h * 0.1, w, h * 0.4);
+
+    // Frost patterns — diagonal lines
+    const frostCount = 3 + Math.floor(this.rng() * 4);
+    this.g.lineStyle(1, p.frost, 0.5);
+    for (let i = 0; i < frostCount; i++) {
+      const fx = -w / 2 + this.rng() * w;
+      const fy = -h / 2 + 4 + this.rng() * (h - 8);
+      const fLen = 10 + this.rng() * 20;
+      const fAng = this.rng() * Math.PI;
+      this.g.beginPath();
+      this.g.moveTo(fx, fy);
+      this.g.lineTo(fx + Math.cos(fAng) * fLen, fy + Math.sin(fAng) * fLen * 0.4);
+      this.g.strokePath();
+      // Branch
+      if (this.rng() > 0.5) {
+        const bx = fx + Math.cos(fAng) * fLen * 0.5;
+        const by = fy + Math.sin(fAng) * fLen * 0.2;
+        const bAng = fAng + (this.rng() - 0.5) * 1.2;
+        this.g.beginPath();
+        this.g.moveTo(bx, by);
+        this.g.lineTo(bx + Math.cos(bAng) * fLen * 0.4, by + Math.sin(bAng) * fLen * 0.2);
+        this.g.strokePath();
+      }
+    }
+
+    // Sparkle dots (white)
+    const sparkleCount = Math.max(3, Math.floor(w / 50));
+    for (let i = 0; i < sparkleCount; i++) {
+      const sx = -w / 2 + this.rng() * w;
+      const sy = -h / 2 + 4 + this.rng() * (h - 8);
+      this.g.fillStyle(p.frost, 0.8);
+      this.g.fillCircle(sx, sy, 1 + this.rng() * 1.5);
+    }
+
+    // Top edge highlight (bright white)
+    this.g.lineStyle(2, p.frost, 0.7);
+    this.g.beginPath();
+    this.g.moveTo(top[0].x, top[0].y);
+    for (let i = 1; i < top.length; i++) this.g.lineTo(top[i].x, top[i].y);
+    this.g.strokePath();
+
+    // Outline
+    this.g.lineStyle(1, p.edge, 0.7);
+    this.g.strokePoints(bodyPts, true);
   }
 }

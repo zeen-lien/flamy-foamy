@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { SCENE, TEX, AUDIO } from '../config/keys';
 import { FONT } from '../ui/fonts';
 import { PrimaryButton, COLOR } from '../ui/Button';
@@ -192,15 +192,25 @@ export class HasilScene extends Phaser.Scene {
 
   private replay(): void {
     this.fadeTo(() => {
-      const key = this.hasilData.level === 1 ? SCENE.LEVEL1 : SCENE.LEVEL1;
+      const sceneMap: Record<number, string> = {
+        1: SCENE.LEVEL1,
+        2: SCENE.LEVEL2,
+        3: SCENE.LEVEL3,
+      };
+      const key = sceneMap[this.hasilData.level] ?? SCENE.LEVEL1;
       this.scene.start(key);
     });
   }
 
   private next(): void {
     this.fadeTo(() => {
-      // Level 2/3 belum ada â†’ balik ke level select
-      this.scene.start(SCENE.LEVEL_SELECT);
+      if (this.hasilData.level === 1) {
+        this.scene.start(SCENE.LEVEL2);
+      } else if (this.hasilData.level === 2) {
+        this.scene.start(SCENE.LEVEL3);
+      } else {
+        this.scene.start(SCENE.HOME);
+      }
     });
   }
 

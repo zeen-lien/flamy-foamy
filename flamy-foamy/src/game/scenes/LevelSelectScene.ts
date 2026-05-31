@@ -148,9 +148,10 @@ export class LevelSelectScene extends Phaser.Scene {
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       if (level === 1) {
         this.scene.start(SCENE.LEVEL1);
+      } else if (level === 2) {
+        this.scene.start(SCENE.LEVEL2);
       } else {
-        // Level 2 & 3 belum dibikin — sementara ke sandbox test
-        this.scene.start(SCENE.PLAYER_TEST, { level });
+        this.scene.start(SCENE.LEVEL3);
       }
     });
   }
