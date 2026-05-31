@@ -2,7 +2,7 @@ import type { TerrainStyle } from '../entities/Terrain';
 import type { TrapVariant } from '../entities/Trap';
 
 /**
- * Data Level 3 â€” Dunia Air. Width: 18000px. 4 areas.
+ * Data Level 3 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Dunia Air. Width: 18000px. 4 areas.
  * Area 3A (0-4500): Pengenalan Foamy mode. Water zones.
  * Area 3B (4500-9500): Ice platforms + water jets.
  * Area 3C (9500-14500): Multi-element maze. Rapid switching.
@@ -179,14 +179,14 @@ export const LEVEL3_SPIKES: SpikeDef[] = [
 ];
 
 export const LEVEL3_TRAPS: TrapDef[] = [
-  // 3A â€” intro
+  // 3A ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â intro
   { x: 2320, y: G, variant: 1, onDur: 2000, offDur: 2600, delay: 0 },
-  // 3B â€” water jets (saws) + flames
+  // 3B ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â water jets (saws) + flames
   { x: 6500, y: G, variant: 2, onDur: 1800, offDur: 2200, delay: 0 },
   { x: 6700, y: G, variant: 2, onDur: 1800, offDur: 2200, delay: 900 },
   { x: 7000, y: G, variant: 3, onDur: 1600, offDur: 2000, delay: 400 },
   { x: 7200, y: G, variant: 3, onDur: 1600, offDur: 2000, delay: 1200 },
-  // 3C â€” multi-element maze (dense traps)
+  // 3C ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â multi-element maze (dense traps)
   { x: 9800, y: G, variant: 3, onDur: 1400, offDur: 1800, delay: 0 },
   { x: 10000, y: G, variant: 1, onDur: 1800, offDur: 2200, delay: 600 },
   { x: 10780, y: G, variant: 2, onDur: 1600, offDur: 2000, delay: 0 },
@@ -197,7 +197,7 @@ export const LEVEL3_TRAPS: TrapDef[] = [
 ];
 
 export const LEVEL3_ENVTEXT: EnvTextDef[] = [
-  { x: 240, y: G - 120, text: 'Dunia Airâ€¦ dingin menusuk tulang.', trigger: 200 },
+  { x: 240, y: G - 120, text: 'Dunia AirÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ dingin menusuk tulang.', trigger: 200 },
   { x: 1800, y: G - 140, text: 'Ganti ke mode Foamy! Tekan C', trigger: 240 },
   { x: 2840, y: G - 150, text: 'Zona air! Hanya Foamy yang tahan.', trigger: 240 },
   { x: 4700, y: G - 140, text: 'Platform es licin. Hati-hati melompat!', trigger: 240 },
@@ -205,18 +205,18 @@ export const LEVEL3_ENVTEXT: EnvTextDef[] = [
   { x: 9800, y: G - 150, text: 'Zona multi-elemen! Ganti mode cepat.', trigger: 260 },
   { x: 10780, y: G - 140, text: 'Zona air di depan. Ganti ke Foamy! Tekan C', trigger: 240 },
   { x: 12800, y: G - 140, text: 'Zona lava! Ganti ke Flamy! Tekan X', trigger: 240 },
-  { x: 14300, y: G - 130, text: '"Penjaga Es menantiâ€¦ bersiaplah."', trigger: 260 },
+  { x: 14300, y: G - 130, text: '"Penjaga Es menantiÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ bersiaplah."', trigger: 260 },
 ];
 
 export const LEVEL3_WATERZONES: WaterZoneDef[] = [
-  // 3A â€” intro water zone
-  { x: 3420, y: G + 20, w: 200, h: 30 },
-  // 3C â€” water zones in multi-element maze
-  { x: 11410, y: G + 20, w: 200, h: 30 },
-  { x: 13050, y: G + 20, w: 300, h: 120 },
+  // 3A ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â intro water zone
+  { x: 3420, y: G - 20, w: 200, h: 50 },
+  // 3C ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â water zones in multi-element maze
+  { x: 11410, y: G - 20, w: 200, h: 50 },
+  { x: 13050, y: G - 20, w: 300, h: 120 },
 ];
 
 export const LEVEL3_LAVAZONES: LavaZoneDef[] = [
-  // 3C â€” lava zones in multi-element maze
-  { x: 12420, y: G + 20, w: 200, h: 30 },
+  // 3C ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â lava zones in multi-element maze
+  { x: 12420, y: G - 20, w: 200, h: 50 },
 ];

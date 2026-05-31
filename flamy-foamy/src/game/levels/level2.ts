@@ -2,7 +2,7 @@ import type { TerrainStyle } from '../entities/Terrain';
 import type { TrapVariant } from '../entities/Trap';
 
 /**
- * Data Level 2 Ã¢â‚¬â€ Dunia Api. Width: 16000px. 4 areas.
+ * Data Level 2 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Dunia Api. Width: 16000px. 4 areas.
  * Area 2A (0-4000): Pengenalan Flamy mode. Tutorial switch mode.
  * Area 2B (4000-8500): Lava river section. Platforms over lava.
  * Area 2C (8500-12500): Fire wall maze. Alternating fire walls.
@@ -50,7 +50,7 @@ export const LEVEL2_TERRAIN: TerrainDef[] = [
   // Setelah lava pool pertama (gap 3040-3400 = lava pool)
   { x: 3600, y: G + 60, w: 400, h: 140, style: 'lava', seed: 106 },
 
-  // ===== 2B (4000-8500) Lava river Ã¢â‚¬â€ platforms over lava =====
+  // ===== 2B (4000-8500) Lava river ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â platforms over lava =====
   { x: 4200, y: G + 60, w: 380, h: 140, style: 'rock', seed: 120 },
   // Floating platforms over lava river
   { x: 4700, y: T1, w: 180, h: 26, style: 'lava', seed: 121 },
@@ -166,12 +166,12 @@ export const LEVEL2_SPIKES: SpikeDef[] = [
 ];
 
 export const LEVEL2_TRAPS: TrapDef[] = [
-  // 2A Ã¢â‚¬â€ intro flame trap
+  // 2A ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â intro flame trap
   { x: 2320, y: G, variant: 3, onDur: 1800, offDur: 2800, delay: 0 },
-  // 2B Ã¢â‚¬â€ saws and flames over lava
+  // 2B ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â saws and flames over lava
   { x: 5750, y: G, variant: 2, onDur: 2000, offDur: 2400, delay: 0 },
   { x: 5900, y: G, variant: 2, onDur: 2000, offDur: 2400, delay: 1200 },
-  // 2C Ã¢â‚¬â€ fire wall maze (mostly flame traps)
+  // 2C ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â fire wall maze (mostly flame traps)
   { x: 8700, y: G, variant: 3, onDur: 1600, offDur: 2200, delay: 0 },
   { x: 8900, y: G, variant: 3, onDur: 1600, offDur: 2200, delay: 800 },
   { x: 9200, y: G, variant: 1, onDur: 2000, offDur: 2600, delay: 400 },
@@ -182,18 +182,18 @@ export const LEVEL2_TRAPS: TrapDef[] = [
 ];
 
 export const LEVEL2_ENVTEXT: EnvTextDef[] = [
-  { x: 240, y: G - 120, text: 'Dunia ApiÃ¢â‚¬Â¦ panas membara di mana-mana.', trigger: 200 },
+  { x: 240, y: G - 120, text: 'Dunia ApiÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ panas membara di mana-mana.', trigger: 200 },
   { x: 1800, y: G - 140, text: 'Ganti ke mode Flamy! Tekan X', trigger: 240 },
   { x: 2840, y: G - 150, text: 'Kolam lava! Hanya Flamy yang tahan.', trigger: 240 },
   { x: 4200, y: G - 140, text: 'Lompat antar platform. Jangan jatuh ke lava!', trigger: 240 },
   { x: 5750, y: G - 130, text: 'Jebakan gergaji. Tunggu timing yang tepat.', trigger: 240 },
   { x: 8700, y: G - 150, text: 'Labirin api! Hindari dinding api berkala.', trigger: 260 },
-  { x: 12100, y: G - 130, text: '"Penjaga Api menantiÃ¢â‚¬Â¦ bersiaplah."', trigger: 260 },
+  { x: 12100, y: G - 130, text: '"Penjaga Api menantiÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ bersiaplah."', trigger: 260 },
 ];
 
 export const LEVEL2_LAVAZONES: LavaZoneDef[] = [
   // Lava pool di area 2A (gap antara terrain)
-  { x: 3220, y: G + 20, w: 380 },
+  { x: 3220, y: G - 20, w: 380 },
   // Lava river di area 2B (gaps between platforms)
   { x: 4500, y: G + 40, w: 1200 },
   { x: 6080, y: G + 40, w: 1100 },
